@@ -1,6 +1,7 @@
 import { Request } from "express";
-import { TokenPayload } from "../jwt";
 
 export interface AuthenticatedRequest extends Request {
-  user: TokenPayload;
+  publicKey: string;
+  id: string;
+  type: "user" | "admin";
 }

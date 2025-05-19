@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "user-client",
   "version": "0.0.1",
   "type": "module",
   "private": true,
@@ -8,8 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lint:fix": "next lint --fix",
-    "typecheck": "tsc --noEmit"
+    "lint:fix": "next lint --fix"
   },
   "dependencies": {
     "@workspace/ui": "workspace:*",

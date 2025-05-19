@@ -14,18 +14,76 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+model Admin {
+  adminId       String   @id @default(cuid())
+  walletAddress String   @unique
+  createdAt     DateTime @default(now())
+  payout        Payout[]
+
+  @@map("admin")
 }
 
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  authorId  Int
-  author    User    @relation(fields: [authorId], references: [id])
+model Task {
+  taskId      Int          @id @default(autoincrement())
+  title       String
+  description String       @default("")
+  usersNeeded Int          @default(10)
+  totalReward Float        @default(0.0)
+  options     Option[] // Renamed to Option (singular)
+  submissions Submission[]
+  createdAt   DateTime     @default(now())
+
+  @@map("task")
+}
+
+model User {
+  userId        String       @id @default(cuid())
+  walletAddress String       @unique
+  submissions   Submission[]
+  createdAt     DateTime     @default(now())
+  pendingAmount Float        @default(0.0)
+  lockedAmount  Float        @default(0.0)
+
+  @@map("user")
+}
+
+model Option {
+  id          Int          @id @default(autoincrement())
+  url         String
+  taskId      Int
+  task        Task         @relation(fields: [taskId], references: [taskId])
+  submissions Submission[]
+
+  @@map("option")
+}
+
+model Payout {
+  payoutId  Int       @id @default(autoincrement())
+  adminId   String
+  admin     Admin     @relation(fields: [adminId], references: [adminId])
+  amount    Float
+  status    TxnStatus @default(PENDING)
+  createdAt DateTime  @default(now())
+
+  @@map("payout")
+}
+
+model Submission {
+  submissionId Int      @id @default(autoincrement())
+  userId       String
+  user         User     @relation(fields: [userId], references: [userId])
+  taskId       Int
+  task         Task     @relation(fields: [taskId], references: [taskId])
+  optionId     Int
+  option       Option   @relation(fields: [optionId], references: [id])
+  submittedAt  DateTime @default(now())
+
+  @@unique([userId, taskId])
+  @@map("submission")
+}
+
+enum TxnStatus {
+  PENDING
+  COMPLETED
+  FAILED
 }

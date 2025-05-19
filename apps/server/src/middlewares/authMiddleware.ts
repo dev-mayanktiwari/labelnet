@@ -34,12 +34,9 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
       String(AppConfig.get("JWT_SECRET"))
     ) as TokenPayload;
 
-    const user = {
-      id: decodedToken.id,
-      email: decodedToken.email,
-      name: decodedToken.name,
-    };
-    request.user = user;
+    request.id = decodedToken.id;
+    request.publicKey = decodedToken.publicKey;
+    request.type = decodedToken.type;
 
     next();
   } catch (error) {

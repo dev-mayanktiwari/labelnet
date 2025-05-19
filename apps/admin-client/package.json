@@ -1,0 +1,42 @@
+{
+  "name": "admin-client",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.0.1",
+    "@solana/wallet-adapter-base": "^0.9.26",
+    "@solana/wallet-adapter-phantom": "^0.9.27",
+    "@solana/wallet-adapter-react": "^0.15.38",
+    "@solana/wallet-adapter-react-ui": "^0.9.38",
+    "@solana/wallet-adapter-solflare": "^0.6.31",
+    "@solana/wallet-adapter-wallets": "^0.19.36",
+    "@solana/web3.js": "^1.98.2",
+    "@workspace/types": "workspace:*",
+    "@workspace/ui": "workspace:*",
+    "axios": "^1.9.0",
+    "bs58": "^6.0.0",
+    "lucide-react": "^0.475.0",
+    "next": "^15.2.3",
+    "next-themes": "^0.4.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.56.4",
+    "sonner": "^2.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@workspace/eslint-config": "workspace:^",
+    "@workspace/typescript-config": "workspace:*",
+    "typescript": "^5.7.3"
+  }
+}

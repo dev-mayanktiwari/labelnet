@@ -16,6 +16,7 @@
   "devDependencies": {
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.18",
+    "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^20",
@@ -30,6 +31,7 @@
     "@workspace/types": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "@workspace/utils": "workspace:*",
+    "bs58": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dayjs": "^1.11.13",
@@ -37,6 +39,7 @@
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "tweetnacl": "^1.0.3",
     "uuid": "^11.1.0"
   }
 }

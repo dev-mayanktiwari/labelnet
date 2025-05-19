@@ -1,8 +1,10 @@
 import { z } from "zod";
 
-export const UserRegistrationInput = z.object({
-  name: z.string().min(3).max(20),
-  email: z.string().email(),
+export const UserRegisterInput = z.object({
+  publicKey: z.string().min(1, "Public key is required"),
+  signature: z.string().min(1, "Signature is required"),
+  userType: z.enum(["user", "admin"]),
+  message: z.string().min(1, "Message is required"),
 });
 
-export type TUserRegistrationInput = z.infer<typeof UserRegistrationInput>;
+export type TUserRegistrationInput = z.infer<typeof UserRegisterInput>;

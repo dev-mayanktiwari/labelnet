@@ -1,5 +1,5 @@
-export type TokenPayload = {
+export interface TokenPayload {
+  publicKey: string;
   id: string;
-  email: string;
-  name: string;
-};
+  type: "user" | "admin";
+}
