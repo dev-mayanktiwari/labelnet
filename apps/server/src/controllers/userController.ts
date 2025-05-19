@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { asyncErrorHandler, httpError, httpResponse } from "@workspace/utils";
-import quicker from "../utils/quicker";
-import dayjs from "dayjs";
 import { ErrorStatusCodes, SuccessStatusCodes } from "@workspace/constants";
 import { UserRegistrationInput } from "@workspace/types";
-import dbServices from "../services/dbServices";
+import dbServices from "@/services/dbServices";
 
 export default {
   register: asyncErrorHandler(
