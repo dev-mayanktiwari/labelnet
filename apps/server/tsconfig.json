@@ -1,10 +1,17 @@
 {
   "extends": "@workspace/typescript-config/base.json",
   "compilerOptions": {
+    "target": "ES2020",
+    "module": "NodeNext",                 
+    "moduleResolution": "nodenext",     
+    "allowJs": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",                   
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]
     },
-    "lib": ["ES2015"],
     "outDir": "./dist"
   },
   "exclude": ["node_modules", "dist"],
