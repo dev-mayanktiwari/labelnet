@@ -59,20 +59,21 @@ export default {
       }
 
       const user = await userDbService.createUser(publicKey);
-
+      console.log("User: ", user);
       const token = await quicker.generateJWTToken({
         publicKey,
         id: user.userId,
         type: userType,
       });
 
+      console.log("Token: ", token);      
       const finalToken = "Bearer " + token;
 
       res.cookie("authToken", finalToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        path: "/api/v1/user",
+        path: "/api/v1/auth",
         maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
       });
 

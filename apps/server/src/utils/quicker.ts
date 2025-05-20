@@ -5,13 +5,12 @@ import nacl from "tweetnacl";
 import { TokenPayload } from "@workspace/types";
 import { sign } from "jsonwebtoken";
 import { AppConfig } from "../config";
-
+import { v2 as cloudinary } from "cloudinary";
 // THIS NEEDED TO BE FIXED
-let bs58: any;
-(async () => {
-  bs58 = (await import("bs58")).default;
-})();
+const bs58 = require("bs58").default;
 
+// const x = bs58.decode("3J9v7g2f8h4");
+// console.log("bs58: ", x);
 export default {
   getSystemHealth: () => {
     return {
@@ -51,17 +50,18 @@ export default {
     signature: string,
     message: string
   ) => {
-    if (!bs58) {
-      bs58 = (await import("bs58")).default;
-    }
     const signatureBytes = bs58.decode(signature);
+    console.log("signatureBytes: ", signatureBytes);
     const publicKeyBytes = bs58.decode(publicKey);
+    console.log("publicKeyBytes: ", publicKeyBytes);
     const messageBytes = new TextEncoder().encode(message);
+    console.log("messageBytes: ", messageBytes);
     const isValid = await nacl.sign.detached.verify(
       messageBytes,
       signatureBytes,
       publicKeyBytes
     );
+    console.log("isValid: ", isValid);
     return isValid;
   },
   generateExpiryTime: (minutes: number) => {
@@ -72,5 +72,15 @@ export default {
       expiresIn: "30d",
     });
     return token;
+  },
+  generatePresignedUrl: async () => {
+    const timestamp = new Date().getTime();
+    const signature = await cloudinary.utils.api_sign_request(
+      {
+        timestamp,
+      },
+      String(AppConfig.get("CLOUDINARY_API_SECRET"))
+    );
+    return { timestamp, signature };
   },
 };
