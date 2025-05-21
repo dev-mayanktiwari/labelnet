@@ -24,14 +24,15 @@ model Admin {
 }
 
 model Task {
-  taskId      Int          @id @default(autoincrement())
-  title       String
-  description String       @default("")
-  usersNeeded Int          @default(10)
-  totalReward Float        @default(0.0)
-  options     Option[] // Renamed to Option (singular)
-  submissions Submission[]
-  createdAt   DateTime     @default(now())
+  taskId          Int          @id @default(autoincrement())
+  title           String
+  description     String       @default("")
+  maxParticipants Int          @default(10)
+  totalReward     Float        @default(0.0)
+  trasactionHash  String       
+  options         Option[] // Renamed to Option (singular)
+  submissions     Submission[]
+  createdAt       DateTime     @default(now())
 
   @@map("task")
 }
