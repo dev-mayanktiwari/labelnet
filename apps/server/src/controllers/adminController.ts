@@ -1,7 +1,12 @@
-import { Request, Response } from "express";
-import { asyncErrorHandler, httpResponse } from "@workspace/utils";
+import { NextFunction, Request, Response } from "express";
+import { asyncErrorHandler, httpError, httpResponse } from "@workspace/utils";
 import quicker from "../utils/quicker";
-import { SuccessStatusCodes } from "@workspace/constants";
+import { ErrorStatusCodes, SuccessStatusCodes } from "@workspace/constants";
+import {
+  TaskSubmissionParamsSchema,
+  TaskSubmissionSchema,
+} from "@workspace/types";
+import { adminDbService } from "../services/adminDbServices";
 
 export default {
   getPreSignedUrl: asyncErrorHandler(async (req: Request, res: Response) => {
@@ -11,4 +16,57 @@ export default {
       signature: preSignedUrl.signature,
     });
   }),
+
+  createTask: asyncErrorHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const body = req.body;
+      const params = req.params;
+
+      const paramsSafeparse = TaskSubmissionParamsSchema.safeParse(params);
+
+      if (!paramsSafeparse.success) {
+        return httpError(
+          next,
+          new Error("Invalid request params"),
+          req,
+          ErrorStatusCodes.CLIENT_ERROR.BAD_REQUEST,
+          paramsSafeparse.error.flatten()
+        );
+      }
+
+      const safeParse = TaskSubmissionSchema.safeParse(body);
+
+      if (!safeParse.success) {
+        return httpError(
+          next,
+          new Error("Invalid request body"),
+          req,
+          ErrorStatusCodes.CLIENT_ERROR.BAD_REQUEST,
+          safeParse.error.flatten()
+        );
+      }
+
+      const task = adminDbService.createTask(
+        safeParse.data,
+        paramsSafeparse.data
+      );
+
+      if (!task) {
+        return httpError(
+          next,
+          new Error("Failed to create task"),
+          req,
+          ErrorStatusCodes.SERVER_ERROR.INTERNAL_SERVER_ERROR
+        );
+      }
+
+      httpResponse(
+        req,
+        res,
+        SuccessStatusCodes.CREATED,
+        "Task created successfully",
+        task
+      );
+    }
+  ),
 };
