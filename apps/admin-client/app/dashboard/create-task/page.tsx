@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { ImageUpload } from "@/components/dashboard/image-upload";
 import {
   Form,
@@ -29,14 +29,21 @@ import { Textarea } from "@workspace/ui/components/textarea";
 import { Slider } from "@workspace/ui/components/slider";
 import { Button } from "@workspace/ui/components/button";
 import { TaskSubmissionSchema, TTaskSubmissionSchema } from "@workspace/types";
+import {
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
+import { adminService } from "@/lib/apiClient";
 
 export default function CreateTaskPage() {
   const router = useRouter();
-  const { publicKey } = useWallet();
+  const { connection } = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<TTaskSubmissionSchema>({
-    // @ts-ignore
     resolver: zodResolver(TaskSubmissionSchema),
     defaultValues: {
       title: "",
@@ -48,6 +55,7 @@ export default function CreateTaskPage() {
   });
 
   async function onSubmit(values: TTaskSubmissionSchema) {
+    console.log("Form submission started");
     if (!publicKey) {
       toast.error("Wallet not connected", {
         description: "Please connect your wallet to create a task.",
@@ -56,22 +64,44 @@ export default function CreateTaskPage() {
     }
 
     setIsSubmitting(true);
+    console.log("Starting submission process");
 
     try {
-      // Here you would integrate with Solana to process the payment
-      console.log("Creating task:", values);
+      console.log("Creating transaction");
+      const transaction = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: new PublicKey(process.env.NEXT_PUBLIC_ADMIN_WALLET!),
+          lamports: values.reward * LAMPORTS_PER_SOL,
+        })
+      );
 
-      // Mock successful task creation
-      setTimeout(() => {
-        toast.success("Task created successfully!", {
-          description: "Your task has been published.",
-        });
-        router.push("/dashboard/tasks");
-      }, 2000);
-    } catch (error) {
+      console.log("Sending transaction");
+      const signature = await sendTransaction(transaction, connection);
+      console.log("Transaction sent, signature:", signature);
+
+      console.log("Confirming transaction");
+      const confirmation = await connection.confirmTransaction(
+        signature,
+        "confirmed"
+      );
+
+      if (confirmation.value.err) throw new Error("Transaction failed");
+
+      console.log("Creating task in backend");
+      const res = await adminService.createTask(values, signature);
+
+      console.log("Task created successfully");
+      toast.success("Task created successfully!", {
+        description: "Your task has been published.",
+      });
+
+      router.push("/dashboard/tasks");
+    } catch (error: any) {
+      console.log("Error during task creation:", error);
       console.error("Error creating task:", error);
       toast.error("Error creating task", {
-        description: "There was an error creating your task. Please try again.",
+        description: error?.message ?? "Unknown error occurred.",
       });
     } finally {
       setIsSubmitting(false);
@@ -96,7 +126,22 @@ export default function CreateTaskPage() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form
+              onSubmit={(e) => {
+                console.log("Form submit event triggered");
+                form.handleSubmit(
+                  (data) => {
+                    console.log("Form data:", data);
+                    console.log("Form validation state:", form.formState);
+                    return onSubmit(data);
+                  },
+                  (errors) => {
+                    console.log("Form validation errors:", errors);
+                  }
+                )(e);
+              }}
+              className="space-y-8"
+            >
               <FormField
                 control={form.control}
                 name="title"

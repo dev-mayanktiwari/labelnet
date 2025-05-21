@@ -1,37 +1,9 @@
 "use client";
 
-import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { authService } from "@/lib/apiClient";
-
 
 export function ConnectWalletButton() {
-  const { connected, publicKey } = useWallet();
-  const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    // Check if user is already authenticated via cookie
-    const checkAuth = async () => {
-      if (connected && publicKey) {
-        try {
-          const response = await authService.authCheck();
-          // @ts-ignore
-          if (response.statusCode == 200) {
-            setIsAuthenticated(true);
-            router.push("/tasks");
-          }
-        } catch (error) {
-          console.error("Auth check error:", error);
-        }
-      }
-    };
-
-    checkAuth();
-  }, [connected, publicKey, router]);
-
+  // Removed all authentication logic from this component
   return (
     <div className="wallet-adapter-button-wrapper">
       <WalletMultiButton className="wallet-adapter-button" />

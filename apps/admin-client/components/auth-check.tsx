@@ -4,8 +4,8 @@ import type React from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { authService } from "../lib/apiClient";
 import { ConnectWalletButton } from "./connect-wallet-button";
+import { authService } from "../lib/apiClient";
 import { SignMessage } from "./sign-message";
 
 export function AuthCheck({ children }: { children: React.ReactNode }) {
@@ -13,13 +13,14 @@ export function AuthCheck({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [authState, setAuthState] = useState({
     isAuthenticated: false,
-    isLoading: false,
+    isLoading: true, // Start with loading to prevent flicker
     isChecked: false,
   });
 
-  // console.log("Is user  authenticated", authState);
+  // console.log("Auth state:", authState);
 
   useEffect(() => {
+    // Reset auth state when wallet disconnects
     if (!connected || !publicKey) {
       setAuthState({
         isAuthenticated: false,
@@ -28,34 +29,32 @@ export function AuthCheck({ children }: { children: React.ReactNode }) {
       });
       return;
     }
+
     // Check if user is authenticated via cookie
     const checkAuth = async () => {
-      if (connected && publicKey) {
-        try {
-          // This part is responding later.
-          const response = await authService.authCheck();
-          // @ts-ignore
-          if (response.statusCode === 200) {
-            setAuthState({
-              isAuthenticated: true,
-              isLoading: false,
-              isChecked: true,
-            });
-          } else {
-            setAuthState({
-              isAuthenticated: false,
-              isLoading: false,
-              isChecked: true,
-            });
-          }
-        } catch (error) {
-          console.error("Auth check error:", error);
+      try {
+        const response = await authService.authCheck();
+        // @ts-ignore
+        if (response.statusCode === 200) {
+          setAuthState({
+            isAuthenticated: true,
+            isLoading: false,
+            isChecked: true,
+          });
+        } else {
           setAuthState({
             isAuthenticated: false,
             isLoading: false,
             isChecked: true,
           });
         }
+      } catch (error) {
+        console.error("Auth check error:", error);
+        setAuthState({
+          isAuthenticated: false,
+          isLoading: false,
+          isChecked: true,
+        });
       }
     };
 
@@ -68,7 +67,7 @@ export function AuthCheck({ children }: { children: React.ReactNode }) {
       authState.isChecked &&
       !authState.isLoading
     ) {
-      router.push("/tasks");
+      router.push("/dashboard");
     }
   }, [
     authState.isAuthenticated,
