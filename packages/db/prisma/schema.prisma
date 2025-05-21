@@ -24,28 +24,44 @@ model Admin {
 }
 
 model Task {
-  taskId          Int          @id @default(autoincrement())
+  taskId          Int             @id @default(autoincrement())
   title           String
-  description     String       @default("")
-  maxParticipants Int          @default(10)
-  totalReward     Float        @default(0.0)
-  trasactionHash  String       
+  description     String          @default("")
+  maxParticipants Int             @default(10)
+  totalReward     Float           @default(0.0)
+  trasactionHash  String
   options         Option[] // Renamed to Option (singular)
   submissions     Submission[]
-  createdAt       DateTime     @default(now())
+  createdAt       DateTime        @default(now())
+  isActive        Boolean         @default(true)
+  timeAnalytics   TimeAnalytics[]
 
   @@map("task")
 }
 
 model User {
-  userId        String       @id @default(cuid())
-  walletAddress String       @unique
+  userId        String          @id @default(cuid())
+  walletAddress String          @unique
   submissions   Submission[]
-  createdAt     DateTime     @default(now())
-  pendingAmount Float        @default(0.0)
-  lockedAmount  Float        @default(0.0)
+  createdAt     DateTime        @default(now())
+  pendingAmount Float           @default(0.0)
+  lockedAmount  Float           @default(0.0)
+  timeAnalytics TimeAnalytics[]
 
   @@map("user")
+}
+
+model TimeAnalytics {
+  id        Int      @id @default(autoincrement())
+  timeTaken Int
+  userId    String
+  user      User     @relation(fields: [userId], references: [userId])
+  taskId    Int
+  task      Task     @relation(fields: [taskId], references: [taskId])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, taskId])
+  @@map("time_analytics")
 }
 
 model Option {
