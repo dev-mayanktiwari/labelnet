@@ -9,6 +9,8 @@ import healthRouter from "./routes/healthRoutes";
 import globalErrorHandler from "./middlewares/globalErrorHandler";
 import authRouter from "./routes/authRouter";
 import adminRouter from "./routes/adminRouter";
+import { transactionWorker } from "./services/transactionWorker";
+import userRouter from "./routes/userRouter";
 
 const app: Application = express();
 const PORT = AppConfig.get("PORT");
@@ -29,6 +31,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/api/v1/health", healthRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/user", userRouter);
 
 //404 Handler
 app.use((req: Request, _: Response, next: NextFunction) => {
@@ -41,6 +44,20 @@ app.use((req: Request, _: Response, next: NextFunction) => {
 
 // Global Error Handler
 app.use(globalErrorHandler);
+
+transactionWorker.start();
+
+process.on("SIGTERM", () => {
+  console.log("Shutting down gracefully...");
+  transactionWorker.stop();
+  process.exit(0);
+});
+
+process.on("SIGINT", () => {
+  console.log("Shutting down gracefully...");
+  transactionWorker.stop();
+  process.exit(0);
+});
 
 app.listen(PORT, () => {
   logger.info("Server started successfully.", {
