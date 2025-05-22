@@ -3,6 +3,7 @@ import { asyncErrorHandler, httpError, httpResponse } from "@workspace/utils";
 import quicker from "../utils/quicker";
 import { ErrorStatusCodes, SuccessStatusCodes } from "@workspace/constants";
 import {
+  AuthenticatedRequest,
   TaskSubmissionParamsSchema,
   TaskSubmissionSchema,
 } from "@workspace/types";
@@ -48,7 +49,8 @@ export default {
 
       const task = adminDbService.createTask(
         safeParse.data,
-        paramsSafeparse.data
+        paramsSafeparse.data,
+        (req as AuthenticatedRequest).id
       );
 
       if (!task) {
@@ -65,6 +67,58 @@ export default {
         res,
         SuccessStatusCodes.CREATED,
         "Task created successfully",
+        task
+      );
+    }
+  ),
+
+  getAllTasks: asyncErrorHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const adminId = (req as AuthenticatedRequest).id;
+      const tasks = await adminDbService.getAllTasks(adminId);
+
+      if (!tasks) {
+        return httpError(
+          next,
+          new Error("Failed to fetch tasks"),
+          req,
+          ErrorStatusCodes.SERVER_ERROR.INTERNAL_SERVER_ERROR
+        );
+      }
+
+      httpResponse(
+        req,
+        res,
+        SuccessStatusCodes.OK,
+        "Tasks fetched successfully",
+        {
+          tasks,
+        }
+      );
+    }
+  ),
+
+  pauseTask: asyncErrorHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const taskId = req.params.taskId;
+      const adminId = (req as AuthenticatedRequest).id;
+
+      const task = await adminDbService.pauseTask(Number(taskId), adminId);
+
+      if (!task) {
+        return httpError(
+          next,
+          new Error("Failed to pause task"),
+          req,
+          ErrorStatusCodes.SERVER_ERROR.INTERNAL_SERVER_ERROR
+        );
+      }
+
+      httpResponse(
+        req,
+        res,
+        SuccessStatusCodes.OK,
+        "Task paused successfully",
         task
       );
     }
