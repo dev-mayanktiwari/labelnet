@@ -1,4 +1,5 @@
 import { prisma } from "@workspace/db";
+import { TResponseSubmissionSchema } from "@workspace/types";
 
 class UserDBServices {
   async createUser(publicKey: string) {
@@ -8,6 +9,162 @@ class UserDBServices {
       update: {},
     });
   }
+
+  async findUser(userId: string) {
+    return prisma.user.findUnique({
+      where: {
+        userId,
+      },
+    });
+  }
+
+  async getNextTask(userId: string) {
+    return prisma.task.findFirst({
+      where: {
+        submissions: {
+          none: {
+            userId,
+          },
+        },
+      },
+    });
+  }
+
+  async getUndoneTasks(userId: string) {
+    return prisma.task.findMany({
+      where: {
+        submissions: { none: { userId } },
+        isActive: true,
+      },
+    });
+  }
+
+  async getDoneTasks(userId: string) {
+    return prisma.task.findMany({
+      where: {
+        submissions: { some: { userId } },
+        isActive: true,
+      },
+    });
+  }
+
+  async submitResponse(data: TResponseSubmissionSchema, userId: string) {
+    return prisma.$transaction(async (tx) => {
+      const task = await tx.task.findUnique({
+        where: {
+          taskId: data.taskId,
+          isActive: true,
+        },
+      });
+
+      if (!task || task.maxParticipants === task.filledParticipants) {
+        throw new Error("Task not found or expired.");
+      }
+
+      const option = await tx.option.findUnique({
+        where: {
+          id: data.optionId,
+        },
+      });
+
+      if (!option) {
+        throw new Error("Option not found");
+      }
+
+      const submission = await tx.submission.create({
+        data: {
+          taskId: task.taskId,
+          optionId: option.id,
+          userId,
+        },
+      });
+
+      const updatedTask = await tx.task.update({
+        where: {
+          taskId: task.taskId,
+        },
+        data: {
+          filledParticipants: { increment: 1 },
+        },
+      });
+
+      if (updatedTask.filledParticipants === task.maxParticipants) {
+        await tx.task.update({
+          where: {
+            taskId: task.taskId,
+          },
+          data: {
+            isActive: false,
+          },
+        });
+      }
+
+      const amount = task.totalReward / task.maxParticipants;
+
+      const updatedUser = await tx.user.update({
+        where: {
+          userId,
+        },
+        data: {
+          pendingAmount: { increment: amount },
+        },
+      });
+
+      await tx.timeAnalytics.create({
+        data: {
+          taskId: task.taskId,
+          userId,
+          timeTaken: data.timeTaken,
+        },
+      });
+
+      return {
+        success: true,
+        submission: submission,
+        user: updatedUser,
+        task: updatedTask,
+      };
+    });
+  }
+
+  // async payout(userId: string, amount: number, hash: string) {
+  //   return prisma.$transaction(async (tx) => {
+  //     const user = await tx.user.update({
+  //       where: {
+  //         userId,
+  //       },
+  //       data: {
+  //         pendingAmount: { decrement: amount },
+  //         lockedAmount: {
+  //           increment: amount,
+  //         },
+  //       },
+  //     });
+
+  //     if (user.pendingAmount < 0) {
+  //       throw new Error("Invalid transaction. Can't fetch twice.");
+  //     }
+
+  //     const payout = await tx.payout.create({
+  //       data: {
+  //         user: {
+  //           connect: {
+  //             userId,
+  //           },
+  //         },
+  //         status: "PENDING",
+  //         amount: amount,
+  //         transactionHash: hash,
+  //       },
+  //     });
+
+  //     return {
+  //       success: true,
+  //       user,
+  //       payout,
+  //     };
+  //   });
+  // }
 }
 
 export const userDbService = new UserDBServices();
