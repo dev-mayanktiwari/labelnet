@@ -1,14 +1,27 @@
 import { prisma } from "@workspace/db";
-import { TTaskSubmissionParams, TTaskSubmissionSchema } from "@workspace/types";
+import {
+  TResponseSubmissionSchema,
+  TTaskSubmissionParams,
+  TTaskSubmissionSchema,
+} from "@workspace/types";
 
 export class AdminDBServices {
-  async createTask(data: TTaskSubmissionSchema, hash: TTaskSubmissionParams) {
+  async createTask(
+    data: TTaskSubmissionSchema,
+    hash: TTaskSubmissionParams,
+    adminId: string
+  ) {
     return prisma.task.create({
       data: {
         title: data.title,
         description: data.description,
         totalReward: data.reward,
         maxParticipants: data.maxParticipants,
+        admin: {
+          connect: {
+            adminId: adminId,
+          },
+        },
         options: {
           createMany: {
             data: data.images.map((image) => ({
@@ -17,6 +30,29 @@ export class AdminDBServices {
           },
         },
         trasactionHash: hash.hash,
+      },
+    });
+  }
+
+  async getAllTasks(userId: string) {
+    return prisma.task.findMany({
+      where: {
+        adminId: userId,
+      },
+      include: {
+        options: true,
+      },
+    });
+  }
+
+  async pauseTask(taskId: number, adminId: string) {
+    return prisma.task.update({
+      where: {
+        taskId: taskId,
+        adminId,
+      },
+      data: {
+        isActive: false,
       },
     });
   }
