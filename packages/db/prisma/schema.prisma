@@ -79,12 +79,18 @@ model Option {
 }
 
 model Payout {
-  payoutId  Int       @id @default(autoincrement())
-  userId    String
-  user      User      @relation(fields: [userId], references: [userId])
-  amount    Float
-  status    TxnStatus @default(PENDING)
-  createdAt DateTime  @default(now())
+  payoutId               Int       @id @default(autoincrement())
+  userId                 String
+  user                   User      @relation(fields: [userId], references: [userId])
+  amount                 Float
+  transactionHash        String?
+  blockChainConfirmation Boolean   @default(false)
+  retryCount             Int       @default(0)
+  failureReason          String?
+  processedAt            DateTime?
+  status                 TxnStatus @default(PENDING)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
   @@map("payout")
 }
@@ -105,6 +111,8 @@ model Submission {
 
 enum TxnStatus {
   PENDING
-  COMPLETED
+  PROCESSING
+  SUCCESS
   FAILED
+  REFUNDED
 }
