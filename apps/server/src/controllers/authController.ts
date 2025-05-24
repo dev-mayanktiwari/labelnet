@@ -8,6 +8,8 @@ import {
 import quicker from "../utils/quicker";
 import { UserRegisterInput } from "@workspace/types";
 import { userDbService } from "../services/userDbServices";
+import { AppConfig } from "../config";
+import { adminDbService } from "../services/adminDbServices";
 
 export default {
   getNonce: asyncErrorHandler(async (req: Request, res: Response) => {
@@ -58,15 +60,26 @@ export default {
         );
       }
 
-      const user = await userDbService.createUser(publicKey);
-      console.log("User: ", user);
-      const token = await quicker.generateJWTToken({
-        publicKey,
-        id: user.userId,
-        type: userType,
-      });
+      let sendEntity;
+      let token;
+      if (userType == "user") {
+        const user = await userDbService.createUser(publicKey);
+        sendEntity = user;
+        token = await quicker.generateJWTToken({
+          publicKey,
+          id: user.userId,
+          type: "user",
+        });
+      } else if (userType == "admin") {
+        const admin = await adminDbService.createAdmin(publicKey);
+        sendEntity = admin;
+        token = await quicker.generateJWTToken({
+          publicKey,
+          id: admin.adminId,
+          type: "admin",
+        });
+      }
 
-      console.log("Token: ", token);      
       const finalToken = "Bearer " + token;
 
       res.cookie("authToken", finalToken, {
@@ -83,9 +96,28 @@ export default {
         SuccessStatusCodes.CREATED,
         "User registered successfully",
         {
-          user,
+          sendEntity,
         }
       );
     }
   ),
+
+  logOut: asyncErrorHandler(async (req: Request, res: Response) => {
+    // const userId = (req as AuthenticatedRequest).id;
+
+    res.clearCookie("authToken", {
+      httpOnly: true,
+      secure: AppConfig.get("NODE_ENV") === "production",
+      sameSite: "lax",
+      path: "/api/v1",
+    });
+
+    httpResponse(
+      req,
+      res,
+      SuccessStatusCodes.OK,
+      ResponseMessage.LOGOUT_SUCCESS,
+      {}
+    );
+  }),
 };

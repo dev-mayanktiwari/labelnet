@@ -123,4 +123,75 @@ export default {
       );
     }
   ),
+
+  getTask: asyncErrorHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const taskId = req.params.taskId;
+      const adminId = (req as AuthenticatedRequest).id;
+
+      const task = await adminDbService.getTask(Number(taskId), adminId);
+
+      if (!task) {
+        return httpError(
+          next,
+          new Error("Failed to fetch task"),
+          req,
+          ErrorStatusCodes.SERVER_ERROR.INTERNAL_SERVER_ERROR
+        );
+      }
+
+      httpResponse(
+        req,
+        res,
+        SuccessStatusCodes.OK,
+        "Task fetched successfully",
+        task
+      );
+    }
+  ),
+
+  calculateAverageTime: asyncErrorHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      // TODO: Validate taskId parameter
+      const taskId = req.params.taskId;
+      const adminId = (req as AuthenticatedRequest).id;
+      let totalTimeValue = 0;
+      let averageTimeValue = 0;
+      const averageTime = await adminDbService.getTask(Number(taskId), adminId);
+
+      if (!averageTime) {
+        return httpError(
+          next,
+          new Error("Failed to calculate average time"),
+          req,
+          ErrorStatusCodes.SERVER_ERROR.INTERNAL_SERVER_ERROR
+        );
+      }
+
+      if (averageTime.timeAnalytics.length === 0) {
+        totalTimeValue = 0;
+      } else {
+        averageTime.timeAnalytics.map((time, index) => {
+          totalTimeValue += time.timeTaken;
+        });
+        averageTimeValue = totalTimeValue / averageTime.timeAnalytics.length;
+      }
+
+      console.log("Average Time Value: ", averageTimeValue);
+      
+      const updatedTask = await adminDbService.updateAverageTime(
+        Number(taskId),
+        adminId,
+        averageTimeValue
+      );
+      console.log("Updated Task: ", updatedTask);
+      httpResponse(
+        req,
+        res,
+        SuccessStatusCodes.OK,
+        "Average time calculated successfully",
+        { averageTime: averageTimeValue, updatedTask }
+      );
+    }
+  ),
 };

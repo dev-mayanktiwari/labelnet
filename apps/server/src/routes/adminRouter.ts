@@ -16,10 +16,16 @@ adminRouter.post(
   adminController.createTask
 );
 adminRouter.get("/get-all-tasks", authMiddleware, adminController.getAllTasks);
+adminRouter.get("/get-task/:taskId", authMiddleware, adminController.getTask);
 adminRouter.post(
   "/pause-task/:taskId",
   authMiddleware,
   adminController.pauseTask
+);
+adminRouter.get(
+  "/get-average-time/:taskId",
+  authMiddleware,
+  adminController.calculateAverageTime
 );
 
 export default adminRouter;

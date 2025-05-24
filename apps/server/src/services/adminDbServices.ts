@@ -1,11 +1,15 @@
 import { prisma } from "@workspace/db";
-import {
-  TResponseSubmissionSchema,
-  TTaskSubmissionParams,
-  TTaskSubmissionSchema,
-} from "@workspace/types";
+import { TTaskSubmissionParams, TTaskSubmissionSchema } from "@workspace/types";
 
 export class AdminDBServices {
+  async createAdmin(publicKey: string) {
+    return prisma.admin.upsert({
+      where: { walletAddress: publicKey },
+      create: { walletAddress: publicKey },
+      update: {},
+    });
+  }
+
   async createTask(
     data: TTaskSubmissionSchema,
     hash: TTaskSubmissionParams,
@@ -41,6 +45,8 @@ export class AdminDBServices {
       },
       include: {
         options: true,
+        submissions: true,
+        timeAnalytics: true,
       },
     });
   }
@@ -54,6 +60,42 @@ export class AdminDBServices {
       data: {
         isActive: false,
       },
+    });
+  }
+
+  async getTask(taskId: number, adminId: string) {
+    return prisma.task.findUnique({
+      where: {
+        taskId: taskId,
+        adminId,
+      },
+      include: {
+        options: true,
+        submissions: true,
+        timeAnalytics: true,
+      },
+    });
+  }
+
+  async updateAverageTime(
+    taskId: number,
+    adminId: string,
+    averageTime: number
+  ) {
+    return prisma.task.update({
+      where: {
+        taskId: taskId,
+        adminId,
+      },
+      data: {
+        averageTime: averageTime,
+      },
+      include: {
+        options: true,
+        submissions: true,
+        timeAnalytics: true,
+        admin: true,
+      }
     });
   }
 }
