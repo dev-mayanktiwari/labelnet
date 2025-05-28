@@ -34,6 +34,7 @@ export class TransactionWorker {
       try {
         await this.processTransactions();
       } catch (error) {
+        console.log("Error processing transactions", error);
         logger.error("Error processing transactions", {
           error: String(error),
         });
@@ -62,6 +63,7 @@ export class TransactionWorker {
       try {
         await this.processTransaction(payout);
       } catch (error) {
+        console.error("Error processing transaction", error);
         logger.error("Error processing transaction", {
           payoutId: payout.payoutId,
           error: String(error),
@@ -90,7 +92,7 @@ export class TransactionWorker {
       );
 
       if (status.confirmed) {
-        logger.info("Transaction confirmed", {
+        logger.info("Transaction succedeed", {
           payoutId: payout.payoutId,
           transactionHash: payout.transactionHash,
         });

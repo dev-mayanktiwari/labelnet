@@ -178,7 +178,7 @@ export default {
       }
 
       console.log("Average Time Value: ", averageTimeValue);
-      
+
       const updatedTask = await adminDbService.updateAverageTime(
         Number(taskId),
         adminId,
@@ -194,4 +194,47 @@ export default {
       );
     }
   ),
+
+  dashboard: asyncErrorHandler(async (req: Request, res: Response) => {
+    // TODO: Validate adminId from request
+    const adminId = (req as AuthenticatedRequest).id;
+    const dashboardData = await adminDbService.getAllTasks(adminId);
+
+    // TODO: Handle the case for average time calculation
+    let totalTasks = 0;
+    let userEngagement = 0;
+    // let avgTime = 0;
+    let solSpent = 0;
+
+    if (dashboardData.length === 0) {
+      return httpResponse(req, res, SuccessStatusCodes.OK, "No tasks found", {
+        totalTasks: totalTasks,
+        solSpent: solSpent,
+        userEngagement: userEngagement,
+        // avgTime: avgTime,
+      });
+    }
+
+    totalTasks = dashboardData.length;
+    solSpent = dashboardData.reduce((acc, task) => acc + task.totalReward, 0);
+    userEngagement = dashboardData.reduce(
+      (acc, task) => acc + task.submissions.length,
+      0
+    );
+    // avgTime = dashboardData.reduce((acc, task) => acc + task.averageTime!, 0);
+    // avgTime = avgTime / totalTasks;
+
+    httpResponse(
+      req,
+      res,
+      SuccessStatusCodes.OK,
+      "Dashboard data fetched successfully",
+      {
+        totalTasks,
+        solSpent,
+        userEngagement,
+        // avgTime,
+      }
+    );
+  }),
 };

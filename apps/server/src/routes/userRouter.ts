@@ -13,6 +13,11 @@ userRouter.post(
   userController.submitResponse
 );
 userRouter.post("/payout", authMiddleware, userController.payout);
-
+userRouter.get("/get-task/:taskId", authMiddleware, userController.getTaskById);
+userRouter.get(
+  "/get-payout-amount",
+  authMiddleware,
+  userController.getPayoutAmoutn
+);
 
 export default userRouter;

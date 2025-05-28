@@ -95,7 +95,7 @@ export class AdminDBServices {
         submissions: true,
         timeAnalytics: true,
         admin: true,
-      }
+      },
     });
   }
 }

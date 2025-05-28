@@ -65,7 +65,9 @@ export default {
 
   submitResponse: asyncErrorHandler(
     async (req: Request, res: Response, next: NextFunction) => {
+      console.log("Submitting response for user...");
       const userId = (req as AuthenticatedRequest).id;
+      console.log("User ID:", userId);
       const body = req.body;
       const safeParse = ResponseSubmissionSchema.safeParse(body);
 
@@ -177,6 +179,48 @@ export default {
           ErrorStatusCodes.SERVER_ERROR.INTERNAL_SERVER_ERROR
         );
       }
+    }
+  ),
+
+  getPayoutAmoutn: asyncErrorHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const userId = (req as AuthenticatedRequest).id;
+      const user = await userDbService.findUser(userId);
+
+      if (!user) {
+        return httpError(
+          next,
+          new Error(ResponseMessage.NOT_FOUND),
+          req,
+          ErrorStatusCodes.CLIENT_ERROR.NOT_FOUND
+        );
+      }
+
+      const payoutAmount = await user.pendingAmount;
+
+      httpResponse(req, res, SuccessStatusCodes.OK, "Payout Amount", {
+        payoutAmount,
+      });
+    }
+  ),
+  
+  getTaskById: asyncErrorHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const userId = (req as AuthenticatedRequest).id;
+      const taskId = req.params.taskId;
+
+      const task = await userDbService.getTaskById(userId, Number(taskId));
+
+      if (!task) {
+        return httpError(
+          next,
+          new Error("Task not found"),
+          req,
+          ErrorStatusCodes.CLIENT_ERROR.NOT_FOUND
+        );
+      }
+
+      httpResponse(req, res, SuccessStatusCodes.OK, "Task details", { task });
     }
   ),
 };

@@ -27,5 +27,6 @@ adminRouter.get(
   authMiddleware,
   adminController.calculateAverageTime
 );
+adminRouter.get("/dashboard", authMiddleware, adminController.dashboard);
 
 export default adminRouter;

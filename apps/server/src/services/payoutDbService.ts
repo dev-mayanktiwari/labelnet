@@ -3,6 +3,7 @@ import { prisma, PrismaClient } from "@workspace/db";
 export class PayoutService {
   constructor(private prismaClient: PrismaClient) {}
 
+
   async createPayout(userId: string, amount: number) {
     // Logic to create a payout in the database
     return this.prismaClient.$transaction(async (tx) => {
