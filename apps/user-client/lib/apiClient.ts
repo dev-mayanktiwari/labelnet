@@ -1,8 +1,10 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from "axios";
 import {
+  TResponseSubmissionSchema,
   TTaskSubmissionSchema,
   TUserRegistrationInput,
 } from "@workspace/types";
+
 // Create a base axios instance
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:6969/api/v1",
@@ -45,6 +47,11 @@ export const authService = {
       method: "GET",
       url: "/auth/get-nonce",
     }),
+  logOut: () =>
+    apiRequest({
+      method: "POST",
+      url: "/auth/logout",
+    }),
 };
 
 export const adminService = {
@@ -58,6 +65,48 @@ export const adminService = {
       method: "POST",
       url: `/admin/create-task/${params}`,
       data: taskData,
+    }),
+  getDashboardData: () =>
+    apiRequest({
+      method: "GET",
+      url: "/admin/dashboard",
+    }),
+};
+
+export const userService = {
+  getNextTask: () =>
+    apiRequest({
+      method: "GET",
+      url: `/user/get-next-task`,
+    }),
+  getAllTask: () =>
+    apiRequest({
+      method: "GET",
+      url: `/user/get-all-tasks`,
+    }),
+  getTaskById: (taskId: string) =>
+    apiRequest({
+      method: "GET",
+      url: `/user/get-task/${taskId}`,
+    }),
+  submitResponse: (data: TResponseSubmissionSchema) => {
+    apiRequest({
+      method: "POST",
+      url: `/user/submit-response`,
+      data,
+    });
+  },
+  getPayoutAmount: () =>
+    apiRequest({
+      method: "GET",
+      url: `/user/get-payout-amount`,
+    }),
+  //@ts-ignore
+  requestPayout: ({ amount }) =>
+    apiRequest({
+      method: "POST",
+      url: `/user/payout`,
+      data: { amount },
     }),
 };
 

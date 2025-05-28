@@ -57,20 +57,20 @@ export default async function DashboardPage() {
             </p> */}
           </CardContent>
         </Card>
-        <Card>
+        {/* <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Avg. Completion Time
             </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          {/* <CardContent>
+          <CardContent>
             <div className="text-2xl font-bold">1.2 min</div>
             <p className="text-xs text-muted-foreground">
               -0.3 min from last month
             </p>
-          </CardContent> */}
-        </Card>
+          </CardContent>
+        </Card> */}
       </div>
 
       {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">

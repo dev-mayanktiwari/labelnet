@@ -1,6 +1,5 @@
 "use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
-import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import {
@@ -20,83 +18,52 @@ import {
 } from "@workspace/ui/components/tabs";
 import { Search, Clock, Wallet } from "lucide-react";
 import Link from "next/link";
+import { FullTask, TaskCardProps } from "@workspace/types";
+import { userService } from "@/lib/apiClient";
 
 export default function TasksPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [completedTasks, setCompletedTasks] = useState<FullTask[]>([]);
+  const [pendingTasks, setPendingTasks] = useState<FullTask[]>([]);
 
-  // Mock data for available tasks
-  const tasks = [
-    {
-      id: "task-1",
-      title: "Image Classification - Animals",
-      description: "Classify images of animals into different categories.",
-      reward: 0.5,
-      estimatedTime: "2-3 min",
-      category: "Classification",
-      spotsLeft: 26,
-      totalSpots: 50,
-    },
-    {
-      id: "task-2",
-      title: "Object Detection - Vehicles",
-      description: "Identify different types of vehicles in images.",
-      reward: 0.8,
-      estimatedTime: "3-5 min",
-      category: "Detection",
-      spotsLeft: 12,
-      totalSpots: 30,
-    },
-    {
-      id: "task-3",
-      title: "Facial Recognition - Emotions",
-      description: "Identify emotions in facial expressions.",
-      reward: 0.6,
-      estimatedTime: "2-4 min",
-      category: "Recognition",
-      spotsLeft: 28,
-      totalSpots: 40,
-    },
-    {
-      id: "task-4",
-      title: "Landscape Classification",
-      description: "Classify different types of landscapes in images.",
-      reward: 0.7,
-      estimatedTime: "2-3 min",
-      category: "Classification",
-      spotsLeft: 12,
-      totalSpots: 20,
-    },
-    {
-      id: "task-5",
-      title: "Product Categorization",
-      description: "Categorize products in e-commerce images.",
-      reward: 0.4,
-      estimatedTime: "1-2 min",
-      category: "Categorization",
-      spotsLeft: 15,
-      totalSpots: 25,
-    },
-    {
-      id: "task-6",
-      title: "Text Sentiment Analysis",
-      description: "Analyze the sentiment of text snippets.",
-      reward: 0.3,
-      estimatedTime: "1-2 min",
-      category: "Analysis",
-      spotsLeft: 20,
-      totalSpots: 30,
-    },
-  ];
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await userService.getAllTask();
+        // @ts-ignore
+        setCompletedTasks(response.data.doneTasks || []);
+        // @ts-ignore
+        setPendingTasks(response.data.undoneTasks || []);
+        // @ts-ignore
+        console.log("Fetched tasks:", response.data.tasks);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
+    };
+    fetchTasks();
+  }, []); // Added dependency array
 
-  const filteredTasks = tasks.filter(
+  // Combine all tasks for filtering
+  const allTasks = [...completedTasks, ...pendingTasks];
+
+  const filteredTasks = allTasks.filter(
     (task) =>
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      task.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      task.category.toLowerCase().includes(searchQuery.toLowerCase())
+      task.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Group tasks by category
-  const categories = [...new Set(filteredTasks.map((task) => task.category))];
+  // Filter tasks by completion status
+  const filteredCompletedTasks = completedTasks.filter(
+    (task) =>
+      task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredPendingTasks = pendingTasks.filter(
+    (task) =>
+      task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
@@ -122,60 +89,41 @@ export default function TasksPage() {
 
       <Tabs defaultValue="all">
         <TabsList>
-          <TabsTrigger value="all">
-            All Tasks ({filteredTasks.length})
+          <TabsTrigger value="all">All Tasks ({allTasks.length})</TabsTrigger>
+          <TabsTrigger value="completed">
+            Completed ({completedTasks.length})
           </TabsTrigger>
-          {categories.map((category) => (
-            <TabsTrigger key={category} value={category}>
-              {category} (
-              {
-                filteredTasks.filter((task) => task.category === category)
-                  .length
-              }
-              )
-            </TabsTrigger>
-          ))}
+          <TabsTrigger value="pending">
+            Pending ({pendingTasks.length})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4 pt-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filteredTasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
+              <TaskCard key={task.taskId} task={task} />
             ))}
           </div>
         </TabsContent>
 
-        {categories.map((category) => (
-          <TabsContent
-            key={category}
-            value={category}
-            className="space-y-4 pt-4"
-          >
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredTasks
-                .filter((task) => task.category === category)
-                .map((task) => (
-                  <TaskCard key={task.id} task={task} />
-                ))}
-            </div>
-          </TabsContent>
-        ))}
+        <TabsContent value="completed" className="space-y-4 pt-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredCompletedTasks.map((task) => (
+              <TaskCard key={task.taskId} task={task} />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="pending" className="space-y-4 pt-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredPendingTasks.map((task) => (
+              <TaskCard key={task.taskId} task={task} />
+            ))}
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   );
-}
-
-interface TaskCardProps {
-  task: {
-    id: string;
-    title: string;
-    description: string;
-    reward: number;
-    estimatedTime: string;
-    category: string;
-    spotsLeft: number;
-    totalSpots: number;
-  };
 }
 
 function TaskCard({ task }: TaskCardProps) {
@@ -184,7 +132,7 @@ function TaskCard({ task }: TaskCardProps) {
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <CardTitle className="text-lg">{task.title}</CardTitle>
-          <Badge>{task.category}</Badge>
+          {/* <Badge>{task.category}</Badge> */}
         </div>
         <CardDescription>{task.description}</CardDescription>
       </CardHeader>
@@ -194,26 +142,26 @@ function TaskCard({ task }: TaskCardProps) {
             <div className="flex items-center gap-2">
               <Wallet className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Reward</span>
-              <span className="font-medium">{task.reward} SOL</span>
+              <span className="font-medium">{task.totalReward} SOL</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Time</span>
-              <span className="font-medium">{task.estimatedTime}</span>
+              {/* <span className="font-medium">{task.estimatedTime}</span> */}
             </div>
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Spots Left</span>
               <span className="font-medium">
-                {task.spotsLeft}/{task.totalSpots}
+                {task.filledParticipants}/{task.maxParticipants}
               </span>
             </div>
             <div className="h-2 w-full rounded-full bg-muted">
               <div
                 className="h-full rounded-full bg-primary"
                 style={{
-                  width: `${(task.spotsLeft / task.totalSpots) * 100}%`,
+                  width: `${(task.filledParticipants / task.maxParticipants) * 100}%`,
                 }}
               />
             </div>
@@ -222,7 +170,7 @@ function TaskCard({ task }: TaskCardProps) {
       </CardContent>
       <CardFooter>
         <Button className="w-full" asChild>
-          <Link href={`/tasks/${task.id}`}>Start Task</Link>
+          <Link href={`/tasks/${task.taskId}`}>Start Task</Link>
         </Button>
       </CardFooter>
     </Card>
