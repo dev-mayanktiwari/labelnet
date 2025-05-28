@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "task" ADD COLUMN     "averageTime" DOUBLE PRECISION NOT NULL DEFAULT 0;

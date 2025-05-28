@@ -33,6 +33,7 @@ model Task {
   trasactionHash     String
   adminId            String
   admin              Admin           @relation(fields: [adminId], references: [adminId])
+  averageTime        Float?           @default(0)
   options            Option[] // Renamed to Option (singular)
   submissions        Submission[]
   createdAt          DateTime        @default(now())
