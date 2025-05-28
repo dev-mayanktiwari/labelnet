@@ -3,6 +3,7 @@ import "@workspace/ui/globals.css";
 import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@workspace/ui/components/sonner";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "LabelChain User - Web3 Labeling Platform",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <Providers>
           {children}
           <Toaster />
+          <Analytics />
         </Providers>
       </body>
     </html>
