@@ -45,6 +45,11 @@ export const authService = {
       method: "GET",
       url: "/auth/get-nonce",
     }),
+  logOut: () =>
+    apiRequest({
+      method: "POST",
+      url: "/auth/logout",
+    }),
 };
 
 export const adminService = {
@@ -58,6 +63,26 @@ export const adminService = {
       method: "POST",
       url: `/admin/create-task/${params}`,
       data: taskData,
+    }),
+  getAllTasks: () =>
+    apiRequest({
+      method: "GET",
+      url: "/admin/get-all-tasks",
+    }),
+  getTask: (taskId: number) =>
+    apiRequest({
+      method: "GET",
+      url: `/admin/get-task/${taskId}`,
+    }),
+  getAverageTimeTask: (taskId: number) =>
+    apiRequest({
+      method: "GET",
+      url: `/admin/get-average-time/${taskId}`,
+    }),
+  getDashboardData: () =>
+    apiRequest({
+      method: "GET",
+      url: "/admin/dashboard",
     }),
 };
 

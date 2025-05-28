@@ -16,67 +16,95 @@ import {
 } from "@workspace/ui/components/tabs";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
-import { Progress } from "@workspace/ui/components/progress";
 import { ArrowLeft, Download, Users, Clock, Wallet } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { adminService } from "@/lib/apiClient";
+import { FullTask } from "@workspace/types";
+import { formatDate } from "@workspace/ui/lib/utils";
 
 export default function TaskDetailsPage() {
   const params = useParams();
   const taskId = params.id as string;
+  const [task, setTask] = useState<FullTask | null>(null);
+
+  useEffect(() => {
+    // This effect can be used to fetch task details based on taskId
+    // For now, we are using mock data
+
+    if (!taskId) {
+      console.error("Task ID is required to fetch task details.");
+      return;
+    }
+    const fetchTaskDetails = async () => {
+      try {
+        // Replace with actual API call
+        const response = await adminService.getAverageTimeTask(Number(taskId));
+        // @ts-ignore
+        console.log("Fetched task details:", response.data);
+        // @ts-ignore
+        setTask(response.data.updatedTask);
+      } catch (error) {
+        console.error("Error fetching task details:", error);
+      }
+    };
+
+    fetchTaskDetails();
+  }, [taskId]);
 
   // Mock task data
-  const task = {
-    id: taskId,
-    title: "Image Classification - Animals",
-    description:
-      "Classify the following images into categories: mammal, bird, reptile, amphibian, fish, or insect.",
-    status: "active",
-    participants: 24,
-    maxParticipants: 50,
-    reward: 0.5,
-    createdAt: "2025-05-01",
-    completionRate: 48,
-    totalSpent: 12.0,
-    averageTime: "1.2 min",
-    images: [
-      "/placeholder.svg?height=200&width=200&text=Image 1",
-      "/placeholder.svg?height=200&width=200&text=Image 2",
-      "/placeholder.svg?height=200&width=200&text=Image 3",
-      "/placeholder.svg?height=200&width=200&text=Image 4",
-    ],
-    submissions: [
-      {
-        id: "sub1",
-        user: "User1",
-        timestamp: "2025-05-05 14:32",
-        status: "completed",
-      },
-      {
-        id: "sub2",
-        user: "User2",
-        timestamp: "2025-05-05 15:10",
-        status: "completed",
-      },
-      {
-        id: "sub3",
-        user: "User3",
-        timestamp: "2025-05-05 16:45",
-        status: "completed",
-      },
-      {
-        id: "sub4",
-        user: "User4",
-        timestamp: "2025-05-06 09:22",
-        status: "completed",
-      },
-      {
-        id: "sub5",
-        user: "User5",
-        timestamp: "2025-05-06 10:15",
-        status: "completed",
-      },
-    ],
-  };
+  // const task = {
+  //   id: taskId,
+  //   title: "Image Classification - Animals",
+  //   description:
+  //     "Classify the following images into categories: mammal, bird, reptile, amphibian, fish, or insect.",
+  //   status: "active",
+  //   participants: 24,
+  //   maxParticipants: 50,
+  //   reward: 0.5,
+  //   createdAt: "2025-05-01",
+  //   completionRate: 48,
+  //   totalSpent: 12.0,
+  //   averageTime: "1.2 min",
+  //   images: [
+  //     "/placeholder.svg?height=200&width=200&text=Image 1",
+  //     "/placeholder.svg?height=200&width=200&text=Image 2",
+  //     "/placeholder.svg?height=200&width=200&text=Image 3",
+  //     "/placeholder.svg?height=200&width=200&text=Image 4",
+  //   ],
+  //   submissions: [
+  //     {
+  //       id: "sub1",
+  //       user: "User1",
+  //       timestamp: "2025-05-05 14:32",
+  //       status: "completed",
+  //     },
+  //     {
+  //       id: "sub2",
+  //       user: "User2",
+  //       timestamp: "2025-05-05 15:10",
+  //       status: "completed",
+  //     },
+  //     {
+  //       id: "sub3",
+  //       user: "User3",
+  //       timestamp: "2025-05-05 16:45",
+  //       status: "completed",
+  //     },
+  //     {
+  //       id: "sub4",
+  //       user: "User4",
+  //       timestamp: "2025-05-06 09:22",
+  //       status: "completed",
+  //     },
+  //     {
+  //       id: "sub5",
+  //       user: "User5",
+  //       timestamp: "2025-05-06 10:15",
+  //       status: "completed",
+  //     },
+  //   ],
+  // };
 
   return (
     <div className="space-y-6">
@@ -87,9 +115,9 @@ export default function TaskDetailsPage() {
             <span className="sr-only">Back</span>
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">{task.title}</h1>
-        <Badge variant={task.status === "active" ? "default" : "secondary"}>
-          {task.status}
+        <h1 className="text-3xl font-bold tracking-tight">{task?.title}</h1>
+        <Badge variant={task?.isActive === true ? "default" : "secondary"}>
+          {task?.isActive === true ? "Active" : "Completed"}
         </Badge>
       </div>
 
@@ -104,19 +132,19 @@ export default function TaskDetailsPage() {
           <CardContent className="space-y-6">
             <div>
               <h3 className="font-semibold">Description</h3>
-              <p className="mt-2 text-muted-foreground">{task.description}</p>
+              <p className="mt-2 text-muted-foreground">{task?.description}</p>
             </div>
 
             <div>
               <h3 className="font-semibold mb-4">Images</h3>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                {task.images.map((image, index) => (
+                {task?.options.map((option, index) => (
                   <div
                     key={index}
                     className="relative aspect-square rounded-md border bg-muted"
                   >
                     <Image
-                      src={image || "/placeholder.svg"}
+                      src={option.url || "/placeholder.svg"}
                       alt={`Task image ${index + 1}`}
                       fill
                       className="rounded-md object-cover"
@@ -147,7 +175,7 @@ export default function TaskDetailsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
                   Completion
@@ -155,7 +183,7 @@ export default function TaskDetailsPage() {
                 <span className="font-medium">{task.completionRate}%</span>
               </div>
               <Progress value={task.completionRate} />
-            </div>
+            </div> */}
 
             <div className="space-y-4">
               <div className="flex items-center gap-3">
@@ -165,7 +193,7 @@ export default function TaskDetailsPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Participants</p>
                   <p className="font-medium">
-                    {task.participants}/{task.maxParticipants}
+                    {task?.filledParticipants}/{task?.maxParticipants}
                   </p>
                 </div>
               </div>
@@ -176,7 +204,7 @@ export default function TaskDetailsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Total Spent</p>
-                  <p className="font-medium">{task.totalSpent} SOL</p>
+                  <p className="font-medium">{task?.totalReward} SOL</p>
                 </div>
               </div>
 
@@ -186,14 +214,14 @@ export default function TaskDetailsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Average Time</p>
-                  <p className="font-medium">{task.averageTime}</p>
+                  <p className="font-medium">{task?.averageTime}</p>
                 </div>
               </div>
             </div>
 
             <div className="pt-4">
               <Button variant="outline" className="w-full">
-                {task.status === "active" ? "Pause Task" : "Resume Task"}
+                {task?.isActive === true ? "Pause Task" : "Resume Task"}
               </Button>
             </div>
           </CardContent>
@@ -233,23 +261,20 @@ export default function TaskDetailsPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {task.submissions.map((submission) => (
+                      {task?.submissions.map((submission) => (
                         <tr
-                          key={submission.id}
+                          key={submission?.submissionId}
                           className="border-b transition-colors hover:bg-muted/50"
                         >
                           <td className="p-4 align-middle">
-                            {submission.user}
+                            {submission?.userId}
                           </td>
                           <td className="p-4 align-middle">
-                            {submission.timestamp}
+                            {formatDate(submission?.submittedAt)}
                           </td>
-                          <td className="p-4 align-middle">
-                            <Badge variant="outline">{submission.status}</Badge>
-                          </td>
-                          <td className="p-4 align-middle">
+                          {/* <td className="p-4 align-middle">
                             {task.reward} SOL
-                          </td>
+                          </td> */}
                         </tr>
                       ))}
                     </tbody>
@@ -278,29 +303,25 @@ export default function TaskDetailsPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {task.submissions
-                        .filter((s) => s.status === "completed")
-                        .map((submission) => (
-                          <tr
-                            key={submission.id}
-                            className="border-b transition-colors hover:bg-muted/50"
-                          >
-                            <td className="p-4 align-middle">
-                              {submission.user}
-                            </td>
-                            <td className="p-4 align-middle">
-                              {submission.timestamp}
-                            </td>
-                            <td className="p-4 align-middle">
-                              <Badge variant="outline">
-                                {submission.status}
-                              </Badge>
-                            </td>
-                            <td className="p-4 align-middle">
-                              {task.reward} SOL
-                            </td>
-                          </tr>
-                        ))}
+                      {task?.submissions.map((submission) => (
+                        <tr
+                          key={submission.submissionId}
+                          className="border-b transition-colors hover:bg-muted/50"
+                        >
+                          <td className="p-4 align-middle">
+                            {submission.userId}
+                          </td>
+                          <td className="p-4 align-middle">
+                            {formatDate(submission.submittedAt)}
+                          </td>
+                          {/* <td className="p-4 align-middle">
+                            <Badge variant="outline">{submission.s}</Badge>
+                          </td> */}
+                          {/* <td className="p-4 align-middle">
+                            {task.to} SOL
+                          </td> */}
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>

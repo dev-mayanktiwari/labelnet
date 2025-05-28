@@ -15,6 +15,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import { Button } from "@workspace/ui/components/button";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useRouter } from "next/navigation";
+import { authService } from "@/lib/apiClient";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -22,6 +23,7 @@ export function Sidebar() {
   const router = useRouter();
 
   const handleLogout = async () => {
+    await authService.logOut();
     await disconnect();
     router.push("/");
   };
@@ -45,18 +47,18 @@ export function Sidebar() {
       href: "/dashboard/tasks",
       active: pathname === "/dashboard/tasks",
     },
-    {
-      label: "Wallet",
-      icon: Wallet,
-      href: "/dashboard/wallet",
-      active: pathname === "/dashboard/wallet",
-    },
-    {
-      label: "Settings",
-      icon: Settings,
-      href: "/dashboard/settings",
-      active: pathname === "/dashboard/settings",
-    },
+    // {
+    //   label: "Wallet",
+    //   icon: Wallet,
+    //   href: "/dashboard/wallet",
+    //   active: pathname === "/dashboard/wallet",
+    // },
+    // {
+    //   label: "Settings",
+    //   icon: Settings,
+    //   href: "/dashboard/settings",
+    //   active: pathname === "/dashboard/settings",
+    // },
   ];
 
   return (
