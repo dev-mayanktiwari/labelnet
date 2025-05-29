@@ -84,7 +84,7 @@ export default {
 
       res.cookie("authToken", finalToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: AppConfig.get("SAFE_COOKIE") === "true",
         sameSite: "lax",
         path: "/api/v1",
         maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days

@@ -18,7 +18,9 @@ const PORT = AppConfig.get("PORT");
 // Middlewares
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: ["https://labelnet-admin-client.vercel.app", "https://labelnet-user-client.vercel.app", "http://localhost:3000", "http://localhost:3001"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );

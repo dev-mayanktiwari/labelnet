@@ -8,7 +8,8 @@ type ConfigKeys =
   | "CLOUDINARY_API_SECRET"
   | "SOLANA_RPC_URL"
   | "ADMIN_PUBLIC_KEY"
-  | "ADMIN_PRIVATE_KEY";
+  | "ADMIN_PRIVATE_KEY"
+  | "SAFE_COOKIE";
 
 const _config: Record<ConfigKeys, string | undefined> = {
   PORT: process.env.PORT,
@@ -18,6 +19,7 @@ const _config: Record<ConfigKeys, string | undefined> = {
   SOLANA_RPC_URL: process.env.SOLANA_RPC_URL,
   ADMIN_PUBLIC_KEY: process.env.ADMIN_PUBLIC_KEY,
   ADMIN_PRIVATE_KEY: process.env.ADMIN_PRIVATE_KEY,
+  SAFE_COOKIE: process.env.SAFE_COOKIE,
 };
 
 export const AppConfig = {
