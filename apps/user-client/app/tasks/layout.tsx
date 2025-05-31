@@ -3,13 +3,13 @@ import { AuthCheck } from "@/components/auth-check";
 import { Header } from "@/components/dashboard/header";
 import { Sidebar } from "@/components/dashboard/sidebar";
 
-export default function DashboardLayout({
+export default function TaskLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <AuthCheck>
+    <AuthCheck requiredUserType="user">
       <div className="flex min-h-screen flex-col">
         <Header />
         <div className="flex flex-1">
