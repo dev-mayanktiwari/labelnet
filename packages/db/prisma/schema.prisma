@@ -29,11 +29,11 @@ model Task {
   description        String          @default("")
   filledParticipants Int             @default(0)
   maxParticipants    Int             @default(10)
-  totalReward        Float           @default(0.0)
+  totalReward        String          @default("0")
   trasactionHash     String
   adminId            String
   admin              Admin           @relation(fields: [adminId], references: [adminId])
-  averageTime        Float?           @default(0)
+  averageTime        Float?          @default(0)
   options            Option[] // Renamed to Option (singular)
   submissions        Submission[]
   createdAt          DateTime        @default(now())
@@ -48,8 +48,8 @@ model User {
   walletAddress String          @unique
   submissions   Submission[]
   createdAt     DateTime        @default(now())
-  pendingAmount Float           @default(0.0)
-  lockedAmount  Float           @default(0.0)
+  pendingAmount String          @default("0")
+  lockedAmount  String          @default("0")
   payout        Payout[]
   timeAnalytics TimeAnalytics[]
 
@@ -83,7 +83,7 @@ model Payout {
   payoutId               Int       @id @default(autoincrement())
   userId                 String
   user                   User      @relation(fields: [userId], references: [userId])
-  amount                 Float
+  amount                 String
   transactionHash        String?
   blockChainConfirmation Boolean   @default(false)
   retryCount             Int       @default(0)
