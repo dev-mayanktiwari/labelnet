@@ -32,14 +32,14 @@ export function AuthCheck({
   const [authStatus, setAuthStatus] = useState<AuthStatus>("initializing");
 
   const checkAuthentication = useCallback(async () => {
-    console.log(
-      "Checking auth - connected:",
-      connected,
-      "publicKey:",
-      !!publicKey,
-      "connecting:",
-      connecting
-    );
+    // console.log(
+    //   "Checking auth - connected:",
+    //   connected,
+    //   "publicKey:",
+    //   !!publicKey,
+    //   "connecting:",
+    //   connecting
+    // );
 
     // If wallet is still connecting, wait
     if (connecting) {
@@ -49,7 +49,7 @@ export function AuthCheck({
 
     // If wallet not connected, user is unauthenticated
     if (!connected || !publicKey) {
-      console.log("Setting status to unauthenticated - wallet not connected");
+      // console.log("Setting status to unauthenticated - wallet not connected");
       setAuthStatus("unauthenticated");
       return;
     }
@@ -59,18 +59,18 @@ export function AuthCheck({
     try {
       // Check if user is already authenticated
       const response = await authService.authCheck();
-      console.log("Auth check response:", response);
+      // console.log("Auth check response:", response);
       // @ts-ignore
       if (response.statusCode === 200) {
-        console.log("Setting status to authenticated");
+        // console.log("Setting status to authenticated");
         setAuthStatus("authenticated");
       } else {
-        console.log("Setting status to need-signature");
+        // console.log("Setting status to need-signature");
         setAuthStatus("need-signature");
       }
     } catch (error) {
-      console.error("Auth check error:", error);
-      console.log("Setting status to need-signature due to error");
+      // console.error("Auth check error:", error);
+      // console.log("Setting status to need-signature due to error");
       setAuthStatus("need-signature");
     }
   }, [connected, publicKey, connecting]);

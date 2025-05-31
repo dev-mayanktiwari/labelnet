@@ -52,17 +52,17 @@ export default {
     message: string
   ) => {
     const signatureBytes = bs58.decode(signature);
-    console.log("signatureBytes: ", signatureBytes);
+    // console.log("signatureBytes: ", signatureBytes);
     const publicKeyBytes = bs58.decode(publicKey);
-    console.log("publicKeyBytes: ", publicKeyBytes);
+    // console.log("publicKeyBytes: ", publicKeyBytes);
     const messageBytes = new TextEncoder().encode(message);
-    console.log("messageBytes: ", messageBytes);
+    // console.log("messageBytes: ", messageBytes);
     const isValid = await nacl.sign.detached.verify(
       messageBytes,
       signatureBytes,
       publicKeyBytes
     );
-    console.log("isValid: ", isValid);
+    // console.log("isValid: ", isValid);
     return isValid;
   },
   generateExpiryTime: (minutes: number) => {

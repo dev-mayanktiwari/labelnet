@@ -20,7 +20,7 @@ export default function WalletPage() {
   // console.log("WalletPage component rendered");
 
   useEffect(() => {
-    console.log("WalletPage useEffect running");
+    // console.log("WalletPage useEffect running");
     // This is where you would typically fetch the wallet balance and transaction history
     // For example, you might call an API endpoint to get this data
     // fetchWalletData();
@@ -47,13 +47,13 @@ export default function WalletPage() {
     }
 
     try {
-      console.log("Attempting to withdraw amount:", amount);
+      // console.log("Attempting to withdraw amount:", amount);
       const response = await userService.requestPayout({
         amount: amount,
       });
-      console.log("Withdrawal response:", response);
+      // console.log("Withdrawal response:", response);
       // @ts-ignore
-      console.log("Response success", response.success);
+      // console.log("Response success", response.success);
       // @ts-ignore
       if (response.success) {
         alert("Withdrawal request successful!");

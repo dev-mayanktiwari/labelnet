@@ -55,7 +55,7 @@ export default function CreateTaskPage() {
   });
 
   async function onSubmit(values: TTaskSubmissionSchema) {
-    console.log("Form submission started");
+    // console.log("Form submission started");
     if (!publicKey) {
       toast.error("Wallet not connected", {
         description: "Please connect your wallet to create a task.",
@@ -64,10 +64,10 @@ export default function CreateTaskPage() {
     }
 
     setIsSubmitting(true);
-    console.log("Starting submission process");
+    // console.log("Starting submission process");
 
     try {
-      console.log("Creating transaction");
+      // console.log("Creating transaction");
       const transaction = new Transaction().add(
         SystemProgram.transfer({
           fromPubkey: publicKey,
@@ -76,11 +76,11 @@ export default function CreateTaskPage() {
         })
       );
 
-      console.log("Sending transaction");
+      // console.log("Sending transaction");
       const signature = await sendTransaction(transaction, connection);
-      console.log("Transaction sent, signature:", signature);
+      // console.log("Transaction sent, signature:", signature);
 
-      console.log("Confirming transaction");
+      // console.log("Confirming transaction");
       const confirmation = await connection.confirmTransaction(
         signature,
         "confirmed"
@@ -88,17 +88,17 @@ export default function CreateTaskPage() {
 
       if (confirmation.value.err) throw new Error("Transaction failed");
 
-      console.log("Creating task in backend");
+      // console.log("Creating task in backend");
       const res = await adminService.createTask(values, signature);
 
-      console.log("Task created successfully");
+      // console.log("Task created successfully");
       toast.success("Task created successfully!", {
         description: "Your task has been published.",
       });
 
       router.push("/dashboard/tasks");
     } catch (error: any) {
-      console.log("Error during task creation:", error);
+      // console.log("Error during task creation:", error);
       console.error("Error creating task:", error);
       toast.error("Error creating task", {
         description: error?.message ?? "Unknown error occurred.",
@@ -128,15 +128,15 @@ export default function CreateTaskPage() {
           <Form {...form}>
             <form
               onSubmit={(e) => {
-                console.log("Form submit event triggered");
+                // console.log("Form submit event triggered");
                 form.handleSubmit(
                   (data) => {
-                    console.log("Form data:", data);
-                    console.log("Form validation state:", form.formState);
+                    // console.log("Form data:", data);
+                    // console.log("Form validation state:", form.formState);
                     return onSubmit(data);
                   },
                   (errors) => {
-                    console.log("Form validation errors:", errors);
+                    // console.log("Form validation errors:", errors);
                   }
                 )(e);
               }}

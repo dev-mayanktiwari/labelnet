@@ -61,7 +61,7 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
         },
       });
       const imageUrl = uploadResponse.data.secure_url;
-      console.log("Image uploaded successfully:", imageUrl);
+      // console.log("Image uploaded successfully:", imageUrl);
 
       onChange([...value, imageUrl]);
       toast.success("Image uploaded successfully.");

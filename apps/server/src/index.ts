@@ -53,13 +53,13 @@ app.use(globalErrorHandler);
 transactionWorker.start();
 
 process.on("SIGTERM", () => {
-  console.log("Shutting down gracefully...");
+  // console.log("Shutting down gracefully...");
   transactionWorker.stop();
   process.exit(0);
 });
 
 process.on("SIGINT", () => {
-  console.log("Shutting down gracefully...");
+  // console.log("Shutting down gracefully...");
   transactionWorker.stop();
   process.exit(0);
 });

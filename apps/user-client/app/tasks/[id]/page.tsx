@@ -119,7 +119,7 @@ export default function TaskAttemptPage() {
         // @ts-ignore
         setTask(response.data.task);
         // @ts-ignore
-        console.log("Response ", response.data);
+        // console.log("Response ", response.data);
 
         // Start timer once task is loaded
         setTimeout(() => {
@@ -177,7 +177,7 @@ export default function TaskAttemptPage() {
         timeTaken: timeTaken, // Time in milliseconds
       };
 
-      console.log("Submitting task response:", submissionData);
+      // console.log("Submitting task response:", submissionData);
 
       // Submit to backend using your API
       await userService.submitResponse(submissionData);

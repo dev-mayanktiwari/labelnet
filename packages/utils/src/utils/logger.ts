@@ -71,7 +71,7 @@ const fileLogFormat = format.printf((info) => {
 });
 
 const consoleTransport = (): Array<ConsoleTransportInstance> => {
-  console.log("Console logger");
+  // console.log("Console logger");
   if (process.env.NODE_ENV === ApplicationEnvironment.DEVELOPMENT) {
     return [
       new transports.Console({

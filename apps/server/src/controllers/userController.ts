@@ -116,7 +116,7 @@ export default {
         userId
       );
 
-      console.log("Transaction response:", txnResponse);
+      // console.log("Transaction response:", txnResponse);
 
       const nextTask = userDbService.getNextTask(userId);
 
@@ -166,11 +166,11 @@ export default {
         userId,
         amount!
       );
-      console.log(
-        "Updated user after payout creation: pending and locked",
-        updatedUser.pendingAmount,
-        updatedUser.lockedAmount
-      );
+      // console.log(
+      //   "Updated user after payout creation: pending and locked",
+      //   updatedUser.pendingAmount,
+      //   updatedUser.lockedAmount
+      // );
       try {
         const userPublicKey = user.walletAddress;
         const privateKeyAdmin = new Uint8Array(
@@ -190,13 +190,13 @@ export default {
           adminAccount,
         ]);
 
-        console.log("Transaction signature:", signature);
+        // console.log("Transaction signature:", signature);
         const updatedPayout = await payoutService.updatePayoutWithTransaction(
           payout.payoutId,
           signature
         );
 
-        console.log("Updated payout:", updatedPayout);
+        // console.log("Updated payout:", updatedPayout);
         return httpResponse(
           req,
           res,

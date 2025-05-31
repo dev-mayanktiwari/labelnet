@@ -35,7 +35,7 @@ export default function TasksPage() {
         // @ts-ignore
         setPendingTasks(response.data.undoneTasks || []);
         // @ts-ignore
-        console.log("Fetched tasks:", response.data.tasks);
+        // console.log("Fetched tasks:", response.data.tasks);
       } catch (error) {
         console.error("Error fetching tasks:", error);
       }

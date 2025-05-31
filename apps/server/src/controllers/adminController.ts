@@ -199,7 +199,7 @@ export default {
         averageTimeValue = totalTimeValue / averageTime.timeAnalytics.length;
       }
 
-      console.log("Average Time Value: ", averageTimeValue);
+      // console.log("Average Time Value: ", averageTimeValue);
 
       const updatedTask = await adminDbService.updateAverageTime(
         Number(taskId),

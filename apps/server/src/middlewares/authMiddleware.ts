@@ -7,7 +7,7 @@ import { AppConfig } from "../config";
 
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies.authToken;
-  console.log("Token: ", token);
+  // console.log("Token: ", token);
   const request = req as AuthenticatedRequest;
   if (!token || !token.startsWith("Bearer ")) {
     return httpError(
