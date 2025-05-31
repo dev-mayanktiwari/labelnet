@@ -154,12 +154,20 @@ export default {
         );
       }
 
+      const taskFrontend = {
+        ...task,
+        totalReward: SolanaAmountUtils.lamportsToSolStringFrontend(
+          task.totalReward
+        ),
+      };
       httpResponse(
         req,
         res,
         SuccessStatusCodes.OK,
         "Task fetched successfully",
-        task
+        {
+          task: taskFrontend,
+        }
       );
     }
   ),
@@ -198,13 +206,19 @@ export default {
         adminId,
         averageTimeValue
       );
-      console.log("Updated Task: ", updatedTask);
+      // console.log("Updated Task: ", updatedTask);
+      const updatedTaskFrontend = {
+        ...updatedTask,
+        totalReward: SolanaAmountUtils.lamportsToSolStringFrontend(
+          updatedTask.totalReward
+        ),
+      };
       httpResponse(
         req,
         res,
         SuccessStatusCodes.OK,
         "Average time calculated successfully",
-        { averageTime: averageTimeValue, updatedTask }
+        { averageTime: averageTimeValue, updatedTask: updatedTaskFrontend }
       );
     }
   ),
