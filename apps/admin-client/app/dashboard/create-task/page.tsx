@@ -44,6 +44,7 @@ export default function CreateTaskPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<TTaskSubmissionSchema>({
+    // @ts-ignore
     resolver: zodResolver(TaskSubmissionSchema),
     defaultValues: {
       title: "",
@@ -55,7 +56,7 @@ export default function CreateTaskPage() {
   });
 
   async function onSubmit(values: TTaskSubmissionSchema) {
-    console.log("Form submission started");
+    // console.log("Form submission started");
     if (!publicKey) {
       toast.error("Wallet not connected", {
         description: "Please connect your wallet to create a task.",
@@ -64,10 +65,10 @@ export default function CreateTaskPage() {
     }
 
     setIsSubmitting(true);
-    console.log("Starting submission process");
+    // console.log("Starting submission process");
 
     try {
-      console.log("Creating transaction");
+      // console.log("Creating transaction");
       const transaction = new Transaction().add(
         SystemProgram.transfer({
           fromPubkey: publicKey,
@@ -76,11 +77,11 @@ export default function CreateTaskPage() {
         })
       );
 
-      console.log("Sending transaction");
+      // console.log("Sending transaction");
       const signature = await sendTransaction(transaction, connection);
-      console.log("Transaction sent, signature:", signature);
+      // console.log("Transaction sent, signature:", signature);
 
-      console.log("Confirming transaction");
+      // console.log("Confirming transaction");
       const confirmation = await connection.confirmTransaction(
         signature,
         "confirmed"
@@ -88,10 +89,10 @@ export default function CreateTaskPage() {
 
       if (confirmation.value.err) throw new Error("Transaction failed");
 
-      console.log("Creating task in backend");
+      // console.log("Creating task in backend");
       const res = await adminService.createTask(values, signature);
 
-      console.log("Task created successfully");
+      // console.log("Task created successfully");
       toast.success("Task created successfully!", {
         description: "Your task has been published.",
       });
@@ -131,8 +132,8 @@ export default function CreateTaskPage() {
                 console.log("Form submit event triggered");
                 form.handleSubmit(
                   (data) => {
-                    console.log("Form data:", data);
-                    console.log("Form validation state:", form.formState);
+                    // console.log("Form data:", data);
+                    // console.log("Form validation state:", form.formState);
                     return onSubmit(data);
                   },
                   (errors) => {
@@ -189,7 +190,7 @@ export default function CreateTaskPage() {
                   name="reward"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Reward per User (SOL)</FormLabel>
+                      <FormLabel>Total Reward (in SOL)</FormLabel>
                       <FormControl>
                         <div className="space-y-4">
                           <Slider
@@ -313,8 +314,8 @@ export default function CreateTaskPage() {
         <CardFooter className="border-t bg-muted/50 px-6 py-4">
           <div className="flex w-full items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Total Cost:{" "}
-              {(form.watch("reward") * form.watch("maxParticipants")).toFixed(
+              Reward per Participant:{" "}
+              {(form.watch("reward") / form.watch("maxParticipants")).toFixed(
                 2
               )}{" "}
               SOL

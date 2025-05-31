@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@workspace/ui/components/sonner";
 import { Analytics } from "@vercel/analytics/next";
+import { SidebarProvider } from "@workspace/ui/components/sidebar";
 
 export const metadata: Metadata = {
   title: "LabelChain Admin - Web3 Labeling Platform",
@@ -31,8 +32,10 @@ export default function RootLayout({
         className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
       >
         <Providers>
-          {children}
-          <Toaster />
+          <SidebarProvider>
+            {children}
+            <Toaster />
+          </SidebarProvider>
           <Analytics />
         </Providers>
       </body>

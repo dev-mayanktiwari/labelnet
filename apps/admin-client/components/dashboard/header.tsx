@@ -7,7 +7,6 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@workspace/ui/components/sheet";
-import { Sidebar } from "@workspace/ui/components/sidebar";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { truncateAddress } from "@workspace/ui/lib/utils";
 
@@ -23,8 +22,8 @@ export function Header() {
             <span className="sr-only">Toggle Menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0">
-          <Sidebar />
+        <SheetContent side="left" className="w-64 p-0 md:hidden">
+          
         </SheetContent>
       </Sheet>
       <div className="flex-1" />
