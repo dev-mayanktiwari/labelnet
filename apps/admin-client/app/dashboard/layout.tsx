@@ -9,7 +9,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AuthCheck requiredUserType="admin" redirectTo="/">
+    <AuthCheck requiredUserType="admin">
       <div className="flex min-h-screen flex-col">
         <Header />
         <div className="flex flex-1">

@@ -12,7 +12,7 @@ import { TaskList } from "@/components/dashboard/task-list";
 import { useEffect, useState } from "react";
 import { adminService } from "@/lib/apiClient";
 
-export default async function DashboardPage() {
+export default function DashboardPage() {
   const [solSpent, setSolSpent] = useState("");
   const [totalTasks, setTotalTasks] = useState(0);
   const [userEngagement, setUserEngagement] = useState(0);
