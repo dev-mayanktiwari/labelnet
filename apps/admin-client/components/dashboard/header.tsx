@@ -7,16 +7,18 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@workspace/ui/components/sheet";
-import { Sidebar } from "@workspace/ui/components/sidebar";
+import { Sidebar } from "@/components/dashboard/sidebar";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { truncateAddress } from "@workspace/ui/lib/utils";
+import { useState } from "react";
 
 export function Header() {
   const { publicKey } = useWallet();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
-      <Sheet>
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="md:hidden">
             <Menu className="h-5 w-5" />
@@ -24,7 +26,9 @@ export function Header() {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-64 p-0">
-          <Sidebar />
+          <div className="h-full">
+            <Sidebar onLinkClick={() => setIsSheetOpen(false)} />
+          </div>
         </SheetContent>
       </Sheet>
       <div className="flex-1" />

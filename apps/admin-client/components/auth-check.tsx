@@ -8,7 +8,17 @@ import { ConnectWalletButton } from "./connect-wallet-button";
 import { authService } from "../lib/apiClient";
 import { SignMessage } from "./sign-message";
 
-export function AuthCheck({ children }: { children: React.ReactNode }) {
+interface AuthCheckProps {
+  children: React.ReactNode;
+  requiredUserType?: "admin" | "user";
+  redirectTo?: string;
+}
+
+export function AuthCheck({
+  children,
+  requiredUserType = "user",
+  redirectTo = "/dashboard",
+}: AuthCheckProps) {
   const { connected, publicKey } = useWallet();
   const router = useRouter();
   const [authState, setAuthState] = useState({
@@ -62,18 +72,29 @@ export function AuthCheck({ children }: { children: React.ReactNode }) {
   }, [connected, publicKey]);
 
   useEffect(() => {
-    if (
-      authState.isAuthenticated &&
-      authState.isChecked &&
-      !authState.isLoading
-    ) {
-      router.push("/dashboard");
+    // Only redirect if auth check is complete
+    if (!authState.isChecked || authState.isLoading) {
+      return;
     }
+
+    // If not authenticated and not connected, redirect to home
+    if (!authState.isAuthenticated && (!connected || !publicKey)) {
+      if (redirectTo === "/") {
+        router.push("/");
+      }
+      return;
+    }
+
+    // If authenticated and we're in a protected route, stay on current page
+    // No automatic redirect to dashboard - let the user stay where they are
   }, [
     authState.isAuthenticated,
     authState.isChecked,
     authState.isLoading,
+    connected,
+    publicKey,
     router,
+    redirectTo,
   ]);
 
   if (authState.isLoading) {
@@ -106,7 +127,7 @@ export function AuthCheck({ children }: { children: React.ReactNode }) {
   if (!authState.isAuthenticated && authState.isChecked) {
     return (
       <SignMessage
-        userType="admin"
+        userType={requiredUserType}
         onSuccess={() =>
           setAuthState((prev) => ({ ...prev, isAuthenticated: true }))
         }

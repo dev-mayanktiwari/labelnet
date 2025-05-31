@@ -84,6 +84,11 @@ export const adminService = {
       method: "GET",
       url: "/admin/dashboard",
     }),
+  pauseTask: (taskId: number) =>
+    apiRequest({
+      method: "POST",
+      url: `/admin/pause-task/${taskId}`,
+    }),
 };
 
 export default apiClient;
