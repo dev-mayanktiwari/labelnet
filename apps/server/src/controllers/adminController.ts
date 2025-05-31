@@ -1,5 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { asyncErrorHandler, httpError, httpResponse } from "@workspace/utils";
+import {
+  asyncErrorHandler,
+  httpError,
+  httpResponse,
+  SolanaAmountUtils,
+} from "@workspace/utils";
 import quicker from "../utils/quicker";
 import { ErrorStatusCodes, SuccessStatusCodes } from "@workspace/constants";
 import {
@@ -76,7 +81,7 @@ export default {
     async (req: Request, res: Response, next: NextFunction) => {
       const adminId = (req as AuthenticatedRequest).id;
       const tasks = await adminDbService.getAllTasks(adminId);
-
+      // console.log("Tasks fetched: ", tasks);
       if (!tasks) {
         return httpError(
           next,
@@ -86,13 +91,22 @@ export default {
         );
       }
 
+      const frontendTasks = tasks.map((task) => ({
+        ...task,
+        totalReward: SolanaAmountUtils.lamportsToSolStringFrontend(
+          task.totalReward
+        ),
+      }));
+
+      // console.log("Frontend Tasks: ", frontendTasks);
+
       httpResponse(
         req,
         res,
         SuccessStatusCodes.OK,
         "Tasks fetched successfully",
         {
-          tasks,
+          tasks: frontendTasks,
         }
       );
     }
@@ -204,23 +218,28 @@ export default {
     let totalTasks = 0;
     let userEngagement = 0;
     // let avgTime = 0;
-    let solSpent = 0;
+    let solSpent = "0";
 
     if (dashboardData.length === 0) {
       return httpResponse(req, res, SuccessStatusCodes.OK, "No tasks found", {
         totalTasks: totalTasks,
-        solSpent: solSpent,
+        solSpent: SolanaAmountUtils.lamportsToSolStringFrontend(solSpent),
         userEngagement: userEngagement,
         // avgTime: avgTime,
       });
     }
 
     totalTasks = dashboardData.length;
-    solSpent = dashboardData.reduce((acc, task) => acc + task.totalReward, 0);
+    solSpent = dashboardData.reduce(
+      (acc, task) => SolanaAmountUtils.addLamports(acc, task.totalReward),
+      "0"
+    );
     userEngagement = dashboardData.reduce(
       (acc, task) => acc + task.submissions.length,
       0
     );
+    const totalSolSpent =
+      SolanaAmountUtils.lamportsToSolStringFrontend(solSpent);
     // avgTime = dashboardData.reduce((acc, task) => acc + task.averageTime!, 0);
     // avgTime = avgTime / totalTasks;
 
@@ -231,7 +250,7 @@ export default {
       "Dashboard data fetched successfully",
       {
         totalTasks,
-        solSpent,
+        solSpent: totalSolSpent,
         userEngagement,
         // avgTime,
       }

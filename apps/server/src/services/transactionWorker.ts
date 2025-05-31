@@ -10,12 +10,12 @@ export class TransactionWorker {
   constructor(
     private solanaService: SolanaService,
     private payoutService: PayoutService,
-    private pollIntervalMs: number = 10000 // Default interval of 5 seconds
+    private pollIntervalMs: number = 10000
   ) {}
 
   start(): void {
     if (this.isRunning) {
-      logger.info("Transaction worker is running.", {
+      logger.info("Transaction worker is already running", {
         meta: {
           intervalMs: this.pollIntervalMs,
         },
@@ -24,19 +24,19 @@ export class TransactionWorker {
     }
 
     this.isRunning = true;
-    logger.info("Transaction worker started.", {
-      meta: {
-        intervalMs: this.pollIntervalMs,
-      },
+    logger.info("Transaction worker started", {
+      intervalMs: this.pollIntervalMs,
     });
 
     this.intervalId = setInterval(async () => {
       try {
         await this.processTransactions();
       } catch (error) {
-        console.log("Error processing transactions", error);
-        logger.error("Error processing transactions", {
-          error: String(error),
+        logger.error("Error in transaction worker loop", {
+          meta: {
+            error: String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+          },
         });
       }
     }, this.pollIntervalMs);
@@ -48,42 +48,75 @@ export class TransactionWorker {
       this.intervalId = undefined;
     }
     this.isRunning = false;
-    logger.info("Transaction worker stopped.");
+    logger.info("Transaction worker stopped");
   }
 
   private async processTransactions(): Promise<void> {
     const pendingTransactions = await this.payoutService.getPendingPayouts();
 
     if (pendingTransactions.length === 0) {
-      logger.info("No pending transactions to process.");
+      logger.debug("No pending transactions to process");
       return;
     }
+
+    logger.info("Processing pending transactions", {
+      meta: { count: pendingTransactions.length },
+    });
 
     for (const payout of pendingTransactions) {
       try {
         await this.processTransaction(payout);
       } catch (error) {
-        console.error("Error processing transaction", error);
         logger.error("Error processing transaction", {
-          payoutId: payout.payoutId,
-          error: String(error),
+          meta: {
+            payoutId: payout.payoutId,
+            userId: payout.userId,
+            error: String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+          },
         });
+
+        // If we hit an unexpected error, mark the payout as failed
+        try {
+          await this.payoutService.failPayout(
+            payout.payoutId,
+            `Unexpected error: ${String(error)}`
+          );
+        } catch (failError) {
+          logger.error("Failed to mark payout as failed", {
+            meta: {
+              payoutId: payout.payoutId,
+              error: String(failError),
+            },
+          });
+        }
       }
     }
   }
 
   private async processTransaction(payout: Payout): Promise<void> {
+    logger.info("Processing transaction", {
+      meta: {
+        payoutId: payout.payoutId,
+        userId: payout.userId,
+        status: payout.status,
+        retryCount: payout.retryCount,
+      },
+    });
+
     if (!payout.transactionHash) {
+      logger.warn("Transaction hash missing", {
+        meta: { payoutId: payout.payoutId, retryCount: payout.retryCount },
+      });
+
       if (payout.retryCount >= 3) {
         await this.payoutService.failPayout(
           payout.payoutId,
-          "Transaction never reached the blockchain"
+          "Transaction hash never received after 3 retries"
         );
-        logger.error("Max retry count reached for payout", {
-          payoutId: payout.payoutId,
-        });
         return;
       }
+      return;
     }
 
     try {
@@ -91,18 +124,41 @@ export class TransactionWorker {
         String(payout.transactionHash)
       );
 
+      logger.info("Transaction status check", {
+        meta: { payoutId: payout.payoutId, status: status },
+      });
+
       if (status.confirmed) {
-        logger.info("Transaction succedeed", {
-          payoutId: payout.payoutId,
-          transactionHash: payout.transactionHash,
+        logger.info("Transaction confirmed", {
+          meta: {
+            payoutId: payout.payoutId,
+            transactionHash: payout.transactionHash,
+          },
         });
-        await this.payoutService.confirmPayout(payout.payoutId);
+
+        const updatedUser = await this.payoutService.confirmPayout(
+          payout.payoutId
+        );
+
+        logger.info("Payout confirmed and user balance updated", {
+          meta: {
+            payoutId: payout.payoutId,
+            userId: payout.userId,
+            finalBalance: {
+              pendingAmount: updatedUser.pendingAmount,
+              lockedAmount: updatedUser.lockedAmount,
+            },
+          },
+        });
       } else if (status.error) {
         logger.error("Transaction failed", {
-          payoutId: payout.payoutId,
-          transactionHash: payout.transactionHash,
-          error: status.error,
+          meta: {
+            payoutId: payout.payoutId,
+            transactionHash: payout.transactionHash,
+            error: status.error,
+          },
         });
+
         await this.payoutService.failPayout(
           payout.payoutId,
           `Transaction failed: ${status.error}`
@@ -114,19 +170,27 @@ export class TransactionWorker {
           (now.getTime() - createdAt.getTime()) / (1000 * 60);
 
         if (minutesElapsed > 10) {
+          logger.error("Transaction timeout", {
+            meta: { payoutId: payout.payoutId, minutesElapsed },
+          });
+
           await this.payoutService.failPayout(
             payout.payoutId,
             "Transaction not confirmed within 10 minutes"
           );
-          logger.error("Transaction not confirmed within 10 minutes", {
-            payoutId: payout.payoutId,
+        } else {
+          logger.debug("Transaction still pending", {
+            meta: { payoutId: payout.payoutId, minutesElapsed },
           });
         }
       }
     } catch (error) {
-      logger.error("Error confirming transaction", {
-        payoutId: payout.payoutId,
-        error: String(error),
+      logger.error("Error checking transaction status", {
+        meta: {
+          payoutId: payout.payoutId,
+          transactionHash: payout.transactionHash,
+          error: String(error),
+        },
       });
 
       if (payout.retryCount >= 5) {
@@ -134,10 +198,8 @@ export class TransactionWorker {
           payout.payoutId,
           `Max retry count reached: ${String(error)}`
         );
-        logger.error("Max retry count reached for payout", {
-          payoutId: payout.payoutId,
-        });
       }
+      throw error; // Re-throw to be caught by the outer try-catch
     }
   }
 }

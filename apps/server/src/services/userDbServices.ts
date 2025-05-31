@@ -1,5 +1,6 @@
 import { prisma } from "@workspace/db";
 import { TResponseSubmissionSchema } from "@workspace/types";
+import { SolanaAmountUtils } from "@workspace/utils";
 
 class UserDBServices {
   async createUser(publicKey: string) {
@@ -50,6 +51,22 @@ class UserDBServices {
 
   async submitResponse(data: TResponseSubmissionSchema, userId: string) {
     return prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUnique({
+        where: {
+          userId,
+        },
+
+        select: {
+          userId: true,
+          pendingAmount: true,
+          lockedAmount: true,
+        },
+      });
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
       const task = await tx.task.findUnique({
         where: {
           taskId: data.taskId,
@@ -99,14 +116,22 @@ class UserDBServices {
         });
       }
 
-      const amount = task.totalReward / task.maxParticipants;
+      const amount = SolanaAmountUtils.divideLamports(
+        task.totalReward,
+        task.maxParticipants
+      );
+
+      const updatedPendingAmount = SolanaAmountUtils.addLamports(
+        user.pendingAmount,
+        amount
+      );
 
       const updatedUser = await tx.user.update({
         where: {
           userId,
         },
         data: {
-          pendingAmount: { increment: amount },
+          pendingAmount: updatedPendingAmount,
         },
       });
 
@@ -127,44 +152,44 @@ class UserDBServices {
     });
   }
 
-  async payout(userId: string, amount: number, hash: string) {
-    return prisma.$transaction(async (tx) => {
-      const user = await tx.user.update({
-        where: {
-          userId,
-        },
-        data: {
-          pendingAmount: { decrement: amount },
-          lockedAmount: {
-            increment: amount,
-          },
-        },
-      });
+  // async payout(userId: string, amount: number, hash: string) {
+  //   return prisma.$transaction(async (tx) => {
+  //     const user = await tx.user.update({
+  //       where: {
+  //         userId,
+  //       },
+  //       data: {
+  //         pendingAmount: { decrement: amount },
+  //         lockedAmount: {
+  //           increment: amount,
+  //         },
+  //       },
+  //     });
 
-      if (user.pendingAmount < 0) {
-        throw new Error("Invalid transaction. Can't fetch twice.");
-      }
+  //     if (user.pendingAmount < 0) {
+  //       throw new Error("Invalid transaction. Can't fetch twice.");
+  //     }
 
-      const payout = await tx.payout.create({
-        data: {
-          user: {
-            connect: {
-              userId,
-            },
-          },
-          status: "PENDING",
-          amount: amount,
-          transactionHash: hash,
-        },
-      });
+  //     const payout = await tx.payout.create({
+  //       data: {
+  //         user: {
+  //           connect: {
+  //             userId,
+  //           },
+  //         },
+  //         status: "PENDING",
+  //         amount: amount,
+  //         transactionHash: hash,
+  //       },
+  //     });
 
-      return {
-        success: true,
-        user,
-        payout,
-      };
-    });
-  }
+  //     return {
+  //       success: true,
+  //       user,
+  //       payout,
+  //     };
+  //   });
+  // }
 
   async getTaskById(userId: string, taskId: number) {
     return prisma.task.findFirst({

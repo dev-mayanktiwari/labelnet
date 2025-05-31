@@ -1,5 +1,7 @@
 import { prisma } from "@workspace/db";
 import { TTaskSubmissionParams, TTaskSubmissionSchema } from "@workspace/types";
+import quicker from "../utils/quicker";
+import { SolanaAmountUtils } from "@workspace/utils";
 
 export class AdminDBServices {
   async createAdmin(publicKey: string) {
@@ -19,7 +21,9 @@ export class AdminDBServices {
       data: {
         title: data.title,
         description: data.description,
-        totalReward: data.reward,
+        totalReward: SolanaAmountUtils.solToLamportsDBString(
+          String(data.reward)
+        ),
         maxParticipants: data.maxParticipants,
         admin: {
           connect: {

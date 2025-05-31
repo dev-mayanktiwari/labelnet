@@ -84,8 +84,9 @@ export default {
 
       res.cookie("authToken", finalToken, {
         httpOnly: true,
-        secure: AppConfig.get("SAFE_COOKIE") === "true",
-        sameSite: "lax",
+        secure: String(AppConfig.get("SAFE_COOKIE")) === "true",
+        sameSite:
+          String(AppConfig.get("SAFE_COOKIE")) === "true" ? "none" : "lax",
         path: "/api/v1",
         maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
       });
@@ -104,11 +105,12 @@ export default {
 
   logOut: asyncErrorHandler(async (req: Request, res: Response) => {
     // const userId = (req as AuthenticatedRequest).id;
-
+    
     res.clearCookie("authToken", {
       httpOnly: true,
-      secure: AppConfig.get("NODE_ENV") === "production",
-      sameSite: "lax",
+      secure: String(AppConfig.get("SAFE_COOKIE")) === "true",
+      sameSite:
+        String(AppConfig.get("SAFE_COOKIE")) === "true" ? "none" : "lax",
       path: "/api/v1",
     });
 

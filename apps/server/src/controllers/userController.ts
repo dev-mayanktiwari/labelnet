@@ -1,5 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { asyncErrorHandler, httpError, httpResponse } from "@workspace/utils";
+import {
+  asyncErrorHandler,
+  httpError,
+  httpResponse,
+  SolanaAmountUtils,
+} from "@workspace/utils";
 import {
   ErrorStatusCodes,
   ResponseMessage,
@@ -21,6 +26,7 @@ import {
 import { AppConfig } from "../config";
 import { payoutService } from "../services/payoutDbService";
 import { solanaService } from "../services/solanaService";
+import quicker from "../utils/quicker";
 const bs58 = require("bs58").default;
 
 export default {
@@ -28,6 +34,7 @@ export default {
     async (req: Request, res: Response, next: NextFunction) => {
       const userId = (req as AuthenticatedRequest).id;
       const task = await userDbService.getNextTask(userId);
+
       if (!task) {
         return httpError(
           next,
@@ -36,7 +43,17 @@ export default {
           ErrorStatusCodes.CLIENT_ERROR.NOT_FOUND
         );
       }
-      httpResponse(req, res, SuccessStatusCodes.OK, "Next Task", task);
+
+      const frontendTask = {
+        ...task,
+        totalReward: SolanaAmountUtils.lamportsToSolStringFrontend(
+          task.totalReward
+        ),
+      };
+
+      httpResponse(req, res, SuccessStatusCodes.OK, "Next Task", {
+        task: frontendTask,
+      });
     }
   ),
 
@@ -56,18 +73,31 @@ export default {
         );
       }
 
+      const doneTasksFrontend = doneTasks.map((task) => ({
+        ...task,
+        totalReward: SolanaAmountUtils.lamportsToSolStringFrontend(
+          task.totalReward
+        ),
+      }));
+      const undoneTasksFrontend = undoneTasks.map((task) => ({
+        ...task,
+        totalReward: SolanaAmountUtils.lamportsToSolStringFrontend(
+          task.totalReward
+        ),
+      }));
+
       httpResponse(req, res, SuccessStatusCodes.OK, "All Tasks", {
-        doneTasks,
-        undoneTasks,
+        doneTasks: doneTasksFrontend,
+        undoneTasks: undoneTasksFrontend,
       });
     }
   ),
 
   submitResponse: asyncErrorHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-      console.log("Submitting response for user...");
+      // console.log("Submitting response for user...");
       const userId = (req as AuthenticatedRequest).id;
-      console.log("User ID:", userId);
+      // console.log("User ID:", userId);
       const body = req.body;
       const safeParse = ResponseSubmissionSchema.safeParse(body);
 
@@ -105,21 +135,23 @@ export default {
   payout: asyncErrorHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       const body = req.body;
-      const safeParse = PayoutSchema.safeParse(body);
+      // TODO You have to validate the amount if it is coming from frontend to the amount string in database
+      // FOR NOW, we are just payouting the whole amount, irrespective of the amount coming from frontend / reques
+      // const safeParse = PayoutSchema.safeParse(body);
 
-      if (!safeParse.success) {
-        return httpError(
-          next,
-          new Error("Invalid input"),
-          req,
-          ErrorStatusCodes.CLIENT_ERROR.BAD_REQUEST,
-          safeParse.error.flatten()
-        );
-      }
+      // if (!safeParse.success) {
+      //   return httpError(
+      //     next,
+      //     new Error("Invalid input"),
+      //     req,
+      //     ErrorStatusCodes.CLIENT_ERROR.BAD_REQUEST,
+      //     safeParse.error.flatten()
+      //   );
+      // }
 
       const userId = (req as AuthenticatedRequest).id;
-      const amount = safeParse.data.amount;
       const user = await userDbService.findUser(userId);
+      const amount = user?.pendingAmount; // Use the pending amount directly from the user object
 
       if (!user) {
         return httpError(
@@ -130,8 +162,15 @@ export default {
         );
       }
 
-      const payout = await payoutService.createPayout(userId, amount);
-
+      const { updatedUser, payout } = await payoutService.createPayout(
+        userId,
+        amount!
+      );
+      console.log(
+        "Updated user after payout creation: pending and locked",
+        updatedUser.pendingAmount,
+        updatedUser.lockedAmount
+      );
       try {
         const userPublicKey = user.walletAddress;
         const privateKeyAdmin = new Uint8Array(
@@ -143,7 +182,7 @@ export default {
           SystemProgram.transfer({
             fromPubkey: adminAccount.publicKey,
             toPubkey: new PublicKey(userPublicKey),
-            lamports: safeParse.data.amount * LAMPORTS_PER_SOL,
+            lamports: parseInt(amount!),
           })
         );
 
@@ -151,11 +190,13 @@ export default {
           adminAccount,
         ]);
 
-        await payoutService.updatePayoutWithTransaction(
+        console.log("Transaction signature:", signature);
+        const updatedPayout = await payoutService.updatePayoutWithTransaction(
           payout.payoutId,
           signature
         );
 
+        console.log("Updated payout:", updatedPayout);
         return httpResponse(
           req,
           res,
@@ -168,10 +209,10 @@ export default {
         );
       } catch (error) {
         console.error("Error processing payout:", error);
-        await payoutService.failPayout(
-          payout.payoutId,
-          "Failed to process payout."
-        );
+        // await payoutService.failPayout(
+        //   payout.payoutId,
+        //   "Failed to process payout."
+        // );
         return httpError(
           next,
           new Error("Failed to process payout."),
@@ -196,14 +237,17 @@ export default {
         );
       }
 
-      const payoutAmount = await user.pendingAmount;
-
+      const apiPayoutAmount = await user.pendingAmount;
+      const payoutAmount =
+        SolanaAmountUtils.lamportsToSolStringFrontend(apiPayoutAmount);
+        
       httpResponse(req, res, SuccessStatusCodes.OK, "Payout Amount", {
         payoutAmount,
+        apiPayoutAmount,
       });
     }
   ),
-  
+
   getTaskById: asyncErrorHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       const userId = (req as AuthenticatedRequest).id;

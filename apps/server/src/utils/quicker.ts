@@ -6,6 +6,7 @@ import { TokenPayload } from "@workspace/types";
 import { sign } from "jsonwebtoken";
 import { AppConfig } from "../config";
 import { v2 as cloudinary } from "cloudinary";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 // THIS NEEDED TO BE FIXED
 const bs58 = require("bs58").default;
 
@@ -82,5 +83,11 @@ export default {
       String(AppConfig.get("CLOUDINARY_API_SECRET"))
     );
     return { timestamp, signature };
+  },
+  lamportsToSol: (lamports: number) => {
+    return lamports / LAMPORTS_PER_SOL;
+  },
+  solToLamports: (sol: number) => {
+    return sol * LAMPORTS_PER_SOL;
   },
 };
