@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@workspace/ui/components/sonner";
 import { Analytics } from "@vercel/analytics/next";
+import { SidebarProvider } from "@workspace/ui/components/sidebar";
 
 export const metadata: Metadata = {
   title: "LabelChain User - Web3 Labeling Platform",

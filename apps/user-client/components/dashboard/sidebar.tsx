@@ -9,7 +9,12 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/lib/apiClient";
 
-export function Sidebar() {
+interface SidebarProps {
+  className?: string;
+  onLinkClick?: () => void;
+}
+
+export function Sidebar({ className, onLinkClick }: SidebarProps) {
   const pathname = usePathname();
   const { disconnect } = useWallet();
   const router = useRouter();
@@ -18,6 +23,8 @@ export function Sidebar() {
     await authService.logOut();
     await disconnect();
     router.push("/");
+    // Close the sheet if it's open
+    onLinkClick?.();
   };
 
   const routes = [
@@ -48,7 +55,7 @@ export function Sidebar() {
   ];
 
   return (
-    <div className="hidden border-r bg-muted/40 md:block md:w-64">
+    <div className={cn("border-r bg-muted/40", className)}>
       <div className="flex h-full flex-col">
         <div className="flex h-14 items-center border-b px-4">
           <Link href="/tasks" className="flex items-center gap-2 font-semibold">
@@ -62,6 +69,7 @@ export function Sidebar() {
               <Link
                 key={route.href}
                 href={route.href}
+                onClick={onLinkClick}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary",
                   route.active
