@@ -25,7 +25,7 @@ import {
 } from "@solana/web3.js";
 import { AppConfig } from "../config";
 import { payoutService } from "../services/payoutDbService";
-import { solanaService } from "../services/solanaService";
+import { SolanaService, solanaService } from "../services/solanaService";
 import quicker from "../utils/quicker";
 const bs58 = require("bs58").default;
 
@@ -240,7 +240,7 @@ export default {
       const apiPayoutAmount = await user.pendingAmount;
       const payoutAmount =
         SolanaAmountUtils.lamportsToSolStringFrontend(apiPayoutAmount);
-        
+
       httpResponse(req, res, SuccessStatusCodes.OK, "Payout Amount", {
         payoutAmount,
         apiPayoutAmount,
@@ -264,7 +264,14 @@ export default {
         );
       }
 
-      httpResponse(req, res, SuccessStatusCodes.OK, "Task details", { task });
+      const rewardPerTask = SolanaAmountUtils.divideLamports(
+        task?.totalReward,
+        task?.maxParticipants
+      );
+      httpResponse(req, res, SuccessStatusCodes.OK, "Task details", {
+        task,
+        rewardPerTask,
+      });
     }
   ),
 };

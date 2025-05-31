@@ -44,6 +44,7 @@ export default function CreateTaskPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<TTaskSubmissionSchema>({
+    // @ts-ignore
     resolver: zodResolver(TaskSubmissionSchema),
     defaultValues: {
       title: "",
@@ -67,7 +68,7 @@ export default function CreateTaskPage() {
     // console.log("Starting submission process");
 
     try {
-      // console.log("Creating transaction");
+      // ("Creating transaction");
       const transaction = new Transaction().add(
         SystemProgram.transfer({
           fromPubkey: publicKey,

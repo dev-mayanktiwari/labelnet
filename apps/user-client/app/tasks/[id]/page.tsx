@@ -98,6 +98,7 @@ export default function TaskAttemptPage() {
   const [task, setTask] = useState<FullTask | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
+  const [reward, setReward] = useState("");
 
   // Initialize timer
   const timer = useTimer();
@@ -118,6 +119,8 @@ export default function TaskAttemptPage() {
         const response = await userService.getTaskById(taskId);
         // @ts-ignore
         setTask(response.data.task);
+        // @ts-ignore
+        setReward(response.data.rewardPerTask);
         // @ts-ignore
         // console.log("Response ", response.data);
 
@@ -148,7 +151,7 @@ export default function TaskAttemptPage() {
     };
   }, []);
 
-  const reward = task ? task.totalReward / task.maxParticipants : 0;
+  // const reward = task ? task.totalReward / task.maxParticipants : 0;
 
   const handleSubmit = async () => {
     if (!selectedOption) {
@@ -183,7 +186,7 @@ export default function TaskAttemptPage() {
       await userService.submitResponse(submissionData);
 
       toast.success("Task completed!", {
-        description: `You've earned ${reward.toFixed(3)} SOL! Time taken: ${formatTime(timeTaken)}`,
+        description: `You've earned ${reward} SOL! Time taken: ${formatTime(timeTaken)}`,
       });
 
       // Redirect to tasks page
@@ -302,7 +305,7 @@ export default function TaskAttemptPage() {
                 <div className="flex items-center gap-2">
                   <Wallet className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">Reward:</span>
-                  <span className="font-medium">{reward.toFixed(3)} SOL</span>
+                  <span className="font-medium">{reward} SOL</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-muted-foreground" />
