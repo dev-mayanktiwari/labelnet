@@ -51,10 +51,11 @@ export default function WalletPage() {
       const response = await userService.requestPayout({
         amount: amount,
       });
-      // console.log("Withdrawal response:", response);
-
+      console.log("Withdrawal response:", response);
       // @ts-ignore
-      if (response.data.success) {
+      console.log("Response success", response.success);
+      // @ts-ignore
+      if (response.success) {
         alert("Withdrawal request successful!");
         // Refresh the amount after successful withdrawal
         const newPayoutResponse = await userService.getPayoutAmount();
@@ -144,7 +145,7 @@ export default function WalletPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col space-y-2">
-            <span className="text-4xl font-bold">{amount?.toFixed(1)} SOL</span>
+            <span className="text-4xl font-bold">{amount} SOL</span>
             <span className="text-sm text-muted-foreground">
               ≈ ${(amount! * 100).toFixed(2)} USD
             </span>
@@ -172,7 +173,7 @@ export default function WalletPage() {
             </div>
           </div>
           <div className="pt-4">
-            <Button className="w-full" onClick={withdrawAmount}>
+            <Button className="w-full cursor-pointer" onClick={withdrawAmount}>
               Withdraw to External Wallet
             </Button>
             {/* <button>hii</button> */}

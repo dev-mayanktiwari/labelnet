@@ -144,11 +144,11 @@ function TaskCard({ task }: TaskCardProps) {
               <span className="text-sm text-muted-foreground">Reward</span>
               <span className="font-medium">{task.totalReward} SOL</span>
             </div>
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Time</span>
-              {/* <span className="font-medium">{task.estimatedTime}</span> */}
-            </div>
+              <span className="font-medium">{task.estimatedTime}</span>
+            </div> */}
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
