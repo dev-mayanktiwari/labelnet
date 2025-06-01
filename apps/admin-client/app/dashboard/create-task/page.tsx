@@ -68,7 +68,7 @@ export default function CreateTaskPage() {
     // console.log("Starting submission process");
 
     try {
-      // ("Creating transaction");
+      // console.log("Creating transaction");
       const transaction = new Transaction().add(
         SystemProgram.transfer({
           fromPubkey: publicKey,
@@ -99,7 +99,7 @@ export default function CreateTaskPage() {
 
       router.push("/dashboard/tasks");
     } catch (error: any) {
-      // console.log("Error during task creation:", error);
+      console.log("Error during task creation:", error);
       console.error("Error creating task:", error);
       toast.error("Error creating task", {
         description: error?.message ?? "Unknown error occurred.",
@@ -129,7 +129,7 @@ export default function CreateTaskPage() {
           <Form {...form}>
             <form
               onSubmit={(e) => {
-                // console.log("Form submit event triggered");
+                console.log("Form submit event triggered");
                 form.handleSubmit(
                   (data) => {
                     // console.log("Form data:", data);
@@ -137,7 +137,7 @@ export default function CreateTaskPage() {
                     return onSubmit(data);
                   },
                   (errors) => {
-                    // console.log("Form validation errors:", errors);
+                    console.log("Form validation errors:", errors);
                   }
                 )(e);
               }}
@@ -190,7 +190,7 @@ export default function CreateTaskPage() {
                   name="reward"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Reward per User (SOL)</FormLabel>
+                      <FormLabel>Total Reward (in SOL)</FormLabel>
                       <FormControl>
                         <div className="space-y-4">
                           <Slider
@@ -314,8 +314,8 @@ export default function CreateTaskPage() {
         <CardFooter className="border-t bg-muted/50 px-6 py-4">
           <div className="flex w-full items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Total Cost:{" "}
-              {(form.watch("reward") * form.watch("maxParticipants")).toFixed(
+              Reward per Participant:{" "}
+              {(form.watch("reward") / form.watch("maxParticipants")).toFixed(
                 2
               )}{" "}
               SOL
