@@ -32,15 +32,13 @@ export function WalletContextProvider({
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'
   // const network = WalletAdapterNetwork.Devnet;
 
-  const RPC_URL = process.env.NEXT_PUBLIC_SOLANA_RPC_URL;
+  const RPC_URL =
+    process.env.NEXT_PUBLIC_SOLANA_RPC_URL || "https://api.devnet.solana.com";
   // You can also provide a custom RPC endpoint
   const endpoint = useMemo(() => RPC_URL, []);
 
   // @solana/wallet-adapter-wallets includes all the adapters but supports tree shaking
-  const wallets = useMemo(
-    () => [new UnsafeBurnerWalletAdapter(), new PhantomWalletAdapter()],
-    []
-  );
+  const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
 
   return (
     <ConnectionProvider endpoint={endpoint!}>

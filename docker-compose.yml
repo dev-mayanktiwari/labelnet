@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   admin-client:
@@ -11,6 +11,10 @@ services:
       - 3000:3000
     networks:
       - app_network
+    env_file:
+      - ./apps/admin-client/.env
+    depends_on:
+      - server
 
   user-client:
     container_name: user-client
@@ -22,6 +26,11 @@ services:
       - 3001:3000
     networks:
       - app_network
+    env_file:
+      - ./apps/user-client/.env
+    depends_on:
+      - server
+
   server:
     container_name: server
     build:
@@ -32,8 +41,9 @@ services:
       - 6969:6969
     networks:
       - app_network
-
-
+    env_file:
+      - ./apps/server/.env
+      
 networks:
   app_network:
     external: true
