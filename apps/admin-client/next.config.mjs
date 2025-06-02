@@ -2,7 +2,7 @@
 const nextConfig = {
   transpilePackages: ["@workspace/ui"],
   images: {
-    domains: ["res.cloudinary.com"],
+    domains: ["https://res.cloudinary.com"],
   },
 };
 
