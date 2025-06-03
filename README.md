@@ -1,6 +1,6 @@
 <!-- PROJECT LOGO -->
 <p align="center">
-  <a href="https://github.com/calcom/cal.com">
+  <a href="https://github.com/dev-mayanktiwari/labelnet">
    <img src="https://github.com/dev-mayanktiwari/labelnet/blob/main/public/banner.png?raw=true" alt="Logo">
   </a>
 
@@ -14,8 +14,8 @@
     ·
     <a href="https://labelnet-admin-client.vercel.app">Admin Website</a>
     ·
-    <a href="labelnet-user-client.vercel.app
-">Worker Website</a>·
+    <a href="labelnet-user-client.vercel.app">Worker Website</a>
+    ·
     <a href="https://github.com/dev-mayanktiwari/labelnet/issues">Issues</a>
   
   </p>
