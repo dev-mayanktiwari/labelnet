@@ -50,7 +50,7 @@ jobs:
           cd infra/ansible/
           sed -e "s/{{ server_ip }}/${{ secrets.SERVER_IP }}/g" \
               -e "s/{{ ansible_user }}/${{ secrets.SERVER_USER }}/g" \
-              -e "s/{{ server_password }}/${{ secrets.SERVER_PASSWORD }}/g" \
+              -e "s/{{ ansible_ssh_pass }}/${{ secrets.SERVER_PASSWORD }}/g" \
               hosts.ini > hosts_final.ini
               cat hosts_final.ini
 
