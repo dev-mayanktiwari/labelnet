@@ -9,6 +9,9 @@ import { SidebarProvider } from "@workspace/ui/components/sidebar";
 export const metadata: Metadata = {
   title: "LabelChain User - Web3 Labeling Platform",
   description: "Create and manage labeling tasks with Solana rewards",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 const fontSans = Geist({

@@ -8,6 +8,9 @@ import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
   title: "LabelChain Admin - Web3 Labeling Platform",
   description: "Create and manage labeling tasks with Solana rewards",
+  icons: {
+    icon: "/logo.png"
+  }
 };
 
 const fontSans = Geist({
