@@ -7,7 +7,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const nextConfig = {
   transpilePackages: ["@workspace/ui"],
   images: {
-    domains: ["https://res.cloudinary.com"],
+    domains: ["res.cloudinary.com"],
   },
   output: "standalone",
   experimental: {
