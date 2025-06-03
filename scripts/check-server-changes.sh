@@ -4,7 +4,7 @@ set -e
 echo "Checking server for changes..."
 
 # Fixed: No spaces around = in bash variable assignment
-AFFECTED_OUTPUT=$(turbo run build --affected --dry-run)
+AFFECTED_OUTPUT=$(pnpm turbo run build --affected --dry-run)
 
 echo "Affected output:"
 echo "$AFFECTED_OUTPUT"
