@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build, Push and Deploy Server on Server Changes
 
 on:
   push:
@@ -6,7 +6,38 @@ on:
       - main
     
 jobs:
+  check-server-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      server_affected: ${{ steps.check.outputs.server_affected }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Make script executable
+        run: chmod +x ./scripts/check-server-changes.sh
+        
+      - name: Check if server is affected
+        id: check
+        run: ./scripts/check-server-changes.sh
+
   build-and-push:
+    needs: check-server-changes
+    if: needs.check-server-changes.outputs.server_affected == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -26,7 +57,8 @@ jobs:
         run: docker push ${{ secrets.DOCKER_USERNAME }}/labelnet:latest
 
   deploy: 
-    needs: build-and-push
+    needs: [check-server-changes, build-and-push]
+    if: needs.check-server-changes.outputs.server_affected == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -61,3 +93,15 @@ jobs:
             -e docker_username=${{ secrets.DOCKER_USERNAME }} \
             -e host_port=${{ secrets.LABELNET_APP_PORT }} \
             -e container_port=${{ secrets.LABELNET_CONTAINER_PORT }}
+  
+  skip-notification:
+    needs: check-server-changes
+    if: needs.check-server-changes.outputs.server_affected == 'false'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: No deployment needed
+        run: |
+          echo "No server changes detected in this push"
+          echo "You are a hero man"
+          echo "This saves time and resources!"
