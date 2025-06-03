@@ -45,13 +45,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y sshpass
 
+      - name: Generate hosts.ini from template
+        run: |
+          # Replace variables in hosts.ini with actual values from secrets
+          sed -e "s/{{ server_ip }}/${{ secrets.SERVER_IP }}/g" \
+              -e "s/{{ ansible_user }}/${{ secrets.SERVER_USER }}/g" \
+              -e "s/{{ server_password }}/${{ secrets.SERVER_PASSWORD }}/g" \
+              hosts.ini > hosts_final.ini
+
       - name: Run Ansible playbook
         run: |
           cd infra/ansible/
-          ansible-playbook -i hosts.ini deploy.yml \
-            -e server_password=${{ secrets.SERVER_PASSWORD }} \
+          ansible-playbook -i hosts_final.ini deploy.yml \
             -e docker_username=${{ secrets.DOCKER_USERNAME }} \
             -e host_port=${{ secrets.LABELNET_APP_PORT }} \
-            -e ansible_user=${{ secrets.SERVER_USER }} \
-            -e server_ip=${{ secrets.SERVER_IP }} \
             -e container_port=${{ secrets.LABELNET_CONTAINER_PORT }}

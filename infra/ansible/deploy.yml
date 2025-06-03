@@ -5,10 +5,10 @@
   tasks:
 
     - name: Ensure docker is installed
-     apt:
-      name: docker.io
-      state: present
-      update_cache: true
+      apt:
+        name: docker.io
+        state: present
+        update_cache: true
 
     - name: Pull latest image from docker hub
       shell: docker pull {{ docker_username }}/labelnet:latest
