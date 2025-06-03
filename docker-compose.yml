@@ -49,7 +49,7 @@ services:
     networks:
       - app_network
     environment:
-      DATABASE_URL: postgres://myuser:mypassword@db:5432/myappdb
+      DATABASE_URL: postgres://myuser:mypassword@labelnet-db:5432/myappdb
     env_file:
       - ./apps/server/.env
     depends_on:

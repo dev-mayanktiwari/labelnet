@@ -9,7 +9,7 @@ WORKDIR /app
 RUN pnpm install -g turbo  
 COPY . .
 RUN cat package.json
-RUN turbo prune user-client --docker
+RUN turbo prune admin-client --docker
 
 FROM base AS installer
 RUN apk update
@@ -36,4 +36,4 @@ COPY --from=installer --chown=nextjs:nodejs /app/apps/user-client/.next/standalo
 COPY --from=installer --chown=nextjs:nodejs /app/apps/user-client/.next/static ./apps/user-client/.next/static
 COPY --from=installer --chown=nextjs:nodejs /app/apps/user-client/public ./apps/user-client/public
 
-CMD ["node", "apps/user-client/server.js"]
+CMD ["node", "apps/admin-client/server.js"]
