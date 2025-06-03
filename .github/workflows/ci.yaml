@@ -47,6 +47,7 @@ jobs:
 
       - name: Run Ansible playbook
         run: |
+          cd infra/ansible/
           ansible-playbook -i hosts.ini deploy.yml \
             -e server_password=${{ secrets.SERVER_PASSWORD }} \
             -e docker_username=${{ secrets.DOCKER_USERNAME }} \
