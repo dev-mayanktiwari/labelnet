@@ -28,7 +28,23 @@
 
 LabelChain is a decentralized data labeling and opinion-taking platform built on Solana blockchain. It enables users to create tasks (e.g., “Which thumbnail is best?”), reward participants who answer these tasks, and distribute payments transparently using Solana. The platform integrates Cloudinary for image uploads and leverages REST APIs with a robust CI/CD pipeline for deployment.
 
-## Overview
+## Index
+
+- [Project Overview](#overview)
+- [Feautres](#feautres)
+- [How It Works?](#how-it-works)
+- [Techstack](#tech-stack)
+- [Architecture](#architecture)
+- [Getting Started](#getting-started)
+- [Development](#development)
+  - [Manual Setup](#manual-setup)
+  - [Setup using Docker](#quick-start-with-docker-compose-up)
+  - [Environment Setup](#environment-setup)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact Me](#contact-me)
+
+## Project Overview
 
 LabelChain is a platform where content creators or businesses can post opinion-based tasks to get crowd-sourced feedback. For example, a YouTuber can post a question with multiple thumbnails and ask users to vote for the best one. The task creator deposits funds which are then distributed among users who participate. The entire payment process is powered by the Solana blockchain for transparency and decentralization.
 
@@ -80,7 +96,7 @@ Here is what you need to be able to run Cal.com.
 
 ## Development
 
-### Setup
+### Manual Setup
 
 1. Clone the repo into a public GitHub repository (or fork https://github.com/dev-mayanktiwari/labelnet/fork). 
 
@@ -103,7 +119,7 @@ Here is what you need to be able to run Cal.com.
    pnpm install
    ```
 
-4. You need to configure environment files for each app (server, admin-client, user-client). Checkout environment configuration here.
+4. You need to configure environment files for each app (server, admin-client, user-client). Checkout environment configuration [here](#environment-setup).
 
 5. Setup Node
    If your Node version does not meet the project's requirements as instructed by the docs, "nvm" (Node Version Manager) allows using Node at the version required by the project:
@@ -120,11 +136,11 @@ Here is what you need to be able to run Cal.com.
 
    You can install nvm from [here](https://github.com/nvm-sh/nvm).
 
-#### Quick start with `docker-compose up`
+### Quick start with `docker-compose`
 
 > - **Requires Docker and Docker Compose to be installed**
 > - Will start a local Postgres instance.
-> - Some environment variables also needed to be configured. You can found the guide here.
+> - Some environment variables also needed to be configured. You can found the guide [here](#environment-setup).
 > - Go to the root of the project and run:
 
 ```sh
