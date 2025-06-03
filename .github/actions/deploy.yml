@@ -24,3 +24,31 @@ jobs:
 
       - name: Push the Docker Image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/labelnet:latest
+
+  deploy: 
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install Ansible and SSHPass
+        run: |
+        python -m pip install --upgrade pip
+          pip install ansible
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
+      - name: Run Ansible playbook
+        run: 
+          ansible-playbook -i hosts.ini deploy.yml \
+            -e server_password=${{ secrets.SERVER_PASSWORD }} \
+            -e docker_username=${{ secrets.DOCKER_USERNAME }} \
+            -e host_port=${{ secrets.HOST_PORT }} \
+            -e container_port=${{ secrets.CONTAINER_PORT }}
