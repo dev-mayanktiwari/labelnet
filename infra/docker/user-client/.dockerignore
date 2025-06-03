@@ -1,0 +1,67 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Production builds (exclude other apps' builds)
+**/dist
+**/build
+**/.next
+!apps/admin-client/dist
+!apps/admin-client/build
+!apps/admin-client/.next
+
+# Development files
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentation
+README.md
+*.md
+
+# Other apps (exclude what you don't need for admin-client)
+apps/user-client
+apps/server
+# Keep only: apps/admin-client
+
+# Turborepo cache
+.turbo
+
+# Testing
+coverage
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+
+# Logs
+logs
+*.log
