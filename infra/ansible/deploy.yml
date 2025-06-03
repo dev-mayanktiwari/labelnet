@@ -24,6 +24,7 @@
         docker rm labelnet || true
 
     - name: Run new container
-      shell:|
-       cd labelnet/
+      shell:
        docker run -d --name labelnet -p {{ host_port }}:{{ container_port }} --env-file .env {{ docker_username }}/labelnet:latest
+      args:
+        chdir: labelnet
