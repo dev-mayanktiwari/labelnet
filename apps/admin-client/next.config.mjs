@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
-import path from "path";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const nextConfig = {
   transpilePackages: ["@workspace/ui"],
@@ -8,7 +11,7 @@ const nextConfig = {
   },
   output: "standalone",
   experimental: {
-    outputFileTracingRoot: path.join(__dirname, "../../"),
+    outputFileTracingRoot: join(__dirname, "../../"),
   },
 };
 

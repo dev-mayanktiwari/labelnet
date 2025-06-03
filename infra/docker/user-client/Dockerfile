@@ -36,4 +36,4 @@ COPY --from=installer --chown=nextjs:nodejs /app/apps/user-client/.next/standalo
 COPY --from=installer --chown=nextjs:nodejs /app/apps/user-client/.next/static ./apps/user-client/.next/static
 COPY --from=installer --chown=nextjs:nodejs /app/apps/user-client/public ./apps/user-client/public
 
-CMD node apps/user-client/server.js
+CMD ["node", "apps/user-client/server.js"]

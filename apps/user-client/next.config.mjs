@@ -1,18 +1,17 @@
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 /** @type {import('next').NextConfig} */
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 const nextConfig = {
   transpilePackages: ["@workspace/ui"],
   images: {
-    domains: ["res.cloudinary.com"],
+    domains: ["https://res.cloudinary.com"],
   },
   output: "standalone",
   experimental: {
-    outputFileTracingRoot: path.join(__dirname, "../../"),
+    outputFileTracingRoot: join(__dirname, "../../"),
   },
 };
 
