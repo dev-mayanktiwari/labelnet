@@ -26,6 +26,8 @@
 
 ## About the Project
 
+[![Watch the video](https://i9.ytimg.com/vi/-Ri2_Sai4hg/mqdefault.jpg?v=683f7d53&sqp=CPD8_cEG&rs=AOn4CLCUy45GFtRtCt2-Qb6_Zemr1ErH0A)](https://youtu.be/-Ri2_Sai4hg)
+
 LabelChain is a decentralized data labeling and opinion-taking platform built on Solana blockchain. It enables users to create tasks (e.g., “Which thumbnail is best?”), reward participants who answer these tasks, and distribute payments transparently using Solana. The platform integrates Cloudinary for image uploads and leverages REST APIs with a robust CI/CD pipeline for deployment.
 
 ## Index
