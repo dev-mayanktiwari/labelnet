@@ -50,5 +50,7 @@ jobs:
           ansible-playbook -i hosts.ini deploy.yml \
             -e server_password=${{ secrets.SERVER_PASSWORD }} \
             -e docker_username=${{ secrets.DOCKER_USERNAME }} \
-            -e host_port=${{ secrets.HOST_PORT }} \
-            -e container_port=${{ secrets.CONTAINER_PORT }}
+            -e host_port=${{ secrets.LABELNET_APP_PORT }} \
+            -e ansible_user=${{ secrets.SERVER_USER }} \
+            -e server_ip=${{ secrets.SERVER_IP }} \
+            -e container_port=${{ secrets.LABELNET_CONTAINER_PORT }}
