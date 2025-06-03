@@ -15,7 +15,7 @@
     <a href="https://labelnet-admin-client.vercel.app">Admin Website</a>
     ·
     <a href="labelnet-user-client.vercel.app
-">Worker Website   ·</a>
+">Worker Website</a>·
     <a href="https://github.com/dev-mayanktiwari/labelnet/issues">Issues</a>
   
   </p>
