@@ -65,7 +65,7 @@ process.on("SIGINT", () => {
 });
 
 app.listen(PORT, () => {
-  logger.info("The server started successfully.", {
+  logger.info("Server started successfully.", {
     meta: {
       PORT: PORT,
       SERVER_URL: `http://localhost:${PORT}`,
