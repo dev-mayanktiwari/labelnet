@@ -264,10 +264,13 @@ export default {
         );
       }
 
-      const rewardPerTask = SolanaAmountUtils.divideLamports(
+      let rewardPerTask = SolanaAmountUtils.divideLamports(
         task?.totalReward,
         task?.maxParticipants
       );
+      
+      rewardPerTask = SolanaAmountUtils.lamportsToSolStringFrontend(rewardPerTask);
+
       httpResponse(req, res, SuccessStatusCodes.OK, "Task details", {
         task,
         rewardPerTask,
